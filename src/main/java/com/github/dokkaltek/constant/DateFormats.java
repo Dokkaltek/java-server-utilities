@@ -4,10 +4,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 /**
- * Constants for date formats.
+ * Constants class for date formats.
  */
+@SuppressWarnings("unused")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class DateFormatConstants {
+public final class DateFormats {
     public static final String ISO_DATE_FORMAT = "yyyy-MM-dd";
     public static final String TIME_FORMAT = "HH:mm:ss";
     public static final String TIME_MILLIS_FORMAT = "HH:mm:ss.SSS";

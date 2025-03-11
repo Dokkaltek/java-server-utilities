@@ -3,7 +3,6 @@ package com.github.dokkaltek.constant;
 /**
  * Http error status codes.
  */
-@SuppressWarnings("unused")
 public enum ErrorStatus {
     /**
      * The <b>400 (Bad Request)</b> status code indicates that the server cannot or will not process the request due to an

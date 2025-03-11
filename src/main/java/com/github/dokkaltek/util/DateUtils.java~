@@ -17,9 +17,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import static com.github.dokkaltek.constant.DateFormats.DATE_TIME_FORMAT;
-import static com.github.dokkaltek.constant.DateFormats.DATE_TIME_MILLI_FORMAT;
-import static com.github.dokkaltek.constant.DateFormats.ISO_DATE_FORMAT;
+import static com.github.dokkaltek.constant.DateFormatConstants.DATE_TIME_FORMAT;
+import static com.github.dokkaltek.constant.DateFormatConstants.DATE_TIME_MILLI_FORMAT;
+import static com.github.dokkaltek.constant.DateFormatConstants.ISO_DATE_FORMAT;
 
 /**
  * Utility class to perform date related operations.

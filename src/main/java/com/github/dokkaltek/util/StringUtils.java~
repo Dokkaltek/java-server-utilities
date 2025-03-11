@@ -194,7 +194,7 @@ public final class StringUtils {
             return str;
         }
 
-        return SPACE_AND_CASE_DELIMITER.matcher(str).replaceAll("_").toLowerCase(Locale.getDefault());
+        return str.replace(" ", "_").toLowerCase(Locale.getDefault());
     }
 
     /**
@@ -207,7 +207,7 @@ public final class StringUtils {
             return str;
         }
 
-        return SPACE_AND_CASE_DELIMITER.matcher(str).replaceAll("_").toUpperCase(Locale.getDefault());
+        return str.replace(" ", "_").toUpperCase(Locale.getDefault());
     }
 
     /**
@@ -220,7 +220,7 @@ public final class StringUtils {
             return str;
         }
 
-        return SPACE_AND_CASE_DELIMITER.matcher(str).replaceAll("-").toLowerCase(Locale.getDefault());
+        return str.replace(" ", "-").toLowerCase(Locale.getDefault());
     }
 
     /**
@@ -233,7 +233,7 @@ public final class StringUtils {
             return str;
         }
 
-        return SPACE_AND_CASE_DELIMITER.matcher(str).replaceAll("-").toUpperCase(Locale.getDefault());
+        return str.replace(" ", "-").toUpperCase(Locale.getDefault());
     }
 
     /**
@@ -250,30 +250,6 @@ public final class StringUtils {
         StringBuilder sb = new StringBuilder();
         for (String frag : frags) {
             sb.append(frag.substring(0, 1).toUpperCase(Locale.getDefault()));
-            sb.append(frag.substring(1).toLowerCase(Locale.getDefault()));
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Converts a string to camelCase format.
-     * @param str The string to convert.
-     * @return The converted string.
-     */
-    public static String toCamelCase(String str) {
-        if (isBlankOrNull(str)) {
-            return str;
-        }
-
-        String[] frags = SPACE_AND_CASE_DELIMITER.split(str);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < frags.length; i++) {
-            String frag = frags[i];
-            if (i > 0) {
-                sb.append(frag.substring(0, 1).toUpperCase(Locale.getDefault()));
-            } else {
-                sb.append(frag.charAt(0));
-            }
             sb.append(frag.substring(1).toLowerCase(Locale.getDefault()));
         }
         return sb.toString();

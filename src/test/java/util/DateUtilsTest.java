@@ -10,6 +10,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 
+import static com.github.dokkaltek.util.DateUtils.getDefaultOffset;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,6 +24,14 @@ class DateUtilsTest {
     private static final String SAMPLE_DATE_WITH_TIME = "2020-05-01 14:20:11";
     private static final String SAMPLE_DATE_WITH_TIME_MILLIS = "2020-05-01 14:20:11.321";
     private static final String SAMPLE_ISO_DATE_TIME = "2020-05-01T12:20:11.321Z";
+
+    /**
+     * Test for {@link DateUtils#getDefaultOffset()} method.
+     */
+    @Test
+    void testGetDefaultOffset() {
+        assertNotNull(getDefaultOffset());
+    }
 
     /**
      * Test for {@link DateUtils#parseDate(String)} method.
