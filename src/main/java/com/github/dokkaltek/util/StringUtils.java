@@ -13,7 +13,11 @@ import java.util.regex.Pattern;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StringUtils {
     private static final Pattern WORD_PATTERN = Pattern.compile("\\S+");
-    private static final Pattern SPACE_AND_CASE_DELIMITER = Pattern.compile("[\\s-_]+");
+    private static final Pattern SPACE_AND_CASE_DELIMITER = Pattern.compile("[\\s\\-_]+");
+    private static final Pattern CAPS_PATTERN = Pattern.compile("(?<![\\-_A-Z])[A-Z]+");
+    private static final String REPLACE_FIRST_MATCH = "$0";
+    private static final String LOW_BAR = "_";
+    private static final String BAR = "-";
 
     /**
      * Checks that a string is not blank or empty.
@@ -43,7 +47,7 @@ public final class StringUtils {
      * @return The truncated string.
      */
     public static String truncate(String str, int length) {
-        if (str == null || str.length() <= length) {
+        if (str == null || str.length() <= length || length < 0) {
             return str;
         }
 
@@ -57,8 +61,8 @@ public final class StringUtils {
      * @return The repeated string.
      */
     public static String repeat(String str, int times) {
-        if (str == null) {
-            return null;
+        if (str == null || times < 0) {
+            return str;
         }
 
         StringBuilder builder = new StringBuilder();
@@ -143,8 +147,8 @@ public final class StringUtils {
      * @return The capitalized string.
      */
     public static String capitalize(String str) {
-        if (str == null) {
-            return null;
+        if (isBlankOrNull(str)) {
+            return str;
         }
 
         if (str.length() == 1) {
@@ -165,27 +169,31 @@ public final class StringUtils {
      * @return The capitalized string.
      */
     public static String capitalizeAll(String str) {
-        if (str == null) {
-            return null;
+        if (isBlankOrNull(str)) {
+            return str;
         }
 
         if (str.length() == 1) {
             return str.toUpperCase(Locale.getDefault());
         } else if (str.length() > 1 && !isBlank(str)) {
             Matcher match = WORD_PATTERN.matcher(str);
+            StringBuilder capitalizedString = new StringBuilder();
+            int prevIndex = 0;
             while (match.find()) {
-                for (int i = 1; i <= match.groupCount(); i++) {
-                    str = str.replaceFirst(match.group(i), capitalize(match.group(i)));
-                }
+                capitalizedString.append(str, prevIndex, match.start())
+                        .append(String.valueOf(str.charAt(match.start()))
+                        .toUpperCase(Locale.getDefault()));
+                prevIndex = match.start() + 1;
             }
-            return str;
+            capitalizedString.append(str, prevIndex, str.length());
+            return capitalizedString.toString();
         } else {
             return str;
         }
     }
 
     /**
-     * Converts a string to snake_case format.
+     * Converts a string to <b>snake_case</b> format.
      * @param str The string to convert.
      * @return The converted string.
      */
@@ -194,11 +202,11 @@ public final class StringUtils {
             return str;
         }
 
-        return SPACE_AND_CASE_DELIMITER.matcher(str).replaceAll("_").toLowerCase(Locale.getDefault());
+        return switchCase(str, LOW_BAR).toLowerCase(Locale.getDefault());
     }
 
     /**
-     * Converts a string to SCREAMING_SNAKE_CASE format.
+     * Converts a string to <b>SCREAMING_SNAKE_CASE</b> format.
      * @param str The string to convert.
      * @return The converted string.
      */
@@ -207,11 +215,11 @@ public final class StringUtils {
             return str;
         }
 
-        return SPACE_AND_CASE_DELIMITER.matcher(str).replaceAll("_").toUpperCase(Locale.getDefault());
+        return switchCase(str, LOW_BAR).toUpperCase(Locale.getDefault());
     }
 
     /**
-     * Converts a string to kebab-case format.
+     * Converts a string to <b>kebab-case</b> format.
      * @param str The string to convert.
      * @return The converted string.
      */
@@ -220,11 +228,11 @@ public final class StringUtils {
             return str;
         }
 
-        return SPACE_AND_CASE_DELIMITER.matcher(str).replaceAll("-").toLowerCase(Locale.getDefault());
+        return switchCase(str, BAR).toLowerCase(Locale.getDefault());
     }
 
     /**
-     * Converts a string to kebab-case format.
+     * Converts a string to <b>SCREAMING-KEBAB-CASE</b> format.
      * @param str The string to convert.
      * @return The converted string.
      */
@@ -233,11 +241,11 @@ public final class StringUtils {
             return str;
         }
 
-        return SPACE_AND_CASE_DELIMITER.matcher(str).replaceAll("-").toUpperCase(Locale.getDefault());
+        return switchCase(str, BAR).toUpperCase(Locale.getDefault());
     }
 
     /**
-     * Converts a string to PascalCase format.
+     * Converts a string to <b>PascalCase</b> format.
      * @param str The string to convert.
      * @return The converted string.
      */
@@ -246,7 +254,9 @@ public final class StringUtils {
             return str;
         }
 
-        String[] frags = SPACE_AND_CASE_DELIMITER.split(str);
+        String noCapsStr = escapeCaseCaps(str, LOW_BAR);
+
+        String[] frags = SPACE_AND_CASE_DELIMITER.split(noCapsStr);
         StringBuilder sb = new StringBuilder();
         for (String frag : frags) {
             sb.append(frag.substring(0, 1).toUpperCase(Locale.getDefault()));
@@ -256,7 +266,7 @@ public final class StringUtils {
     }
 
     /**
-     * Converts a string to camelCase format.
+     * Converts a string to <b>camelCase</b> format.
      * @param str The string to convert.
      * @return The converted string.
      */
@@ -265,17 +275,47 @@ public final class StringUtils {
             return str;
         }
 
-        String[] frags = SPACE_AND_CASE_DELIMITER.split(str);
+        String noCapsStr = escapeCaseCaps(str, LOW_BAR);
+
+        String[] frags = SPACE_AND_CASE_DELIMITER.split(noCapsStr);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < frags.length; i++) {
             String frag = frags[i];
             if (i > 0) {
                 sb.append(frag.substring(0, 1).toUpperCase(Locale.getDefault()));
             } else {
-                sb.append(frag.charAt(0));
+                sb.append(String.valueOf(frag.charAt(0)).toLowerCase(Locale.getDefault()));
             }
             sb.append(frag.substring(1).toLowerCase(Locale.getDefault()));
         }
         return sb.toString();
+    }
+
+    /**
+     * Escapes each non-escaped cap letter with the specified separator for switch case operations.
+     * @param str The string to escape the caps of.
+     * @param separator The separator to escape the caps.
+     * @return The converted string.
+     */
+    private static String escapeCaseCaps(String str, String separator) {
+        String escapedCapsStr = CAPS_PATTERN.matcher(str).replaceAll(separator + REPLACE_FIRST_MATCH);
+
+        if (escapedCapsStr.startsWith(separator)) {
+            escapedCapsStr = escapedCapsStr.substring(1);
+        }
+
+        return escapedCapsStr;
+    }
+    /**
+     * Switches the case of a string with the specified separator.
+     * @param str The string to switch the case to.
+     * @param separator The separator to use.
+     * @return The converted string.
+     */
+    private static String switchCase(String str, String separator) {
+        String noCapsStr = escapeCaseCaps(str, separator);
+
+        return SPACE_AND_CASE_DELIMITER.matcher(noCapsStr)
+                .replaceAll(separator);
     }
 }

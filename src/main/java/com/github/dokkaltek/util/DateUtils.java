@@ -27,14 +27,14 @@ import static com.github.dokkaltek.constant.DateFormats.ISO_DATE_FORMAT;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DateUtils {
     private static final String DATE_TIME_FORMATTER_PATTERN = "yyyy-MM-dd[[ ]['T']HH:mm[:ss[.SSS]]]";
-    private static final ZoneOffset DEFAULT_ZONE_OFFSET = OffsetTime.now().getOffset();
+    private static final int ISO_INSTANT_LENGTH_WITHOUT_MILLIS = 23;
 
     /**
      * Gets the {@link ZoneOffset} for the current time zone of the machine.
      * @return The {@link ZoneOffset} for the current time zone of the machine.
      */
     public static ZoneOffset getDefaultOffset() {
-        return ZoneOffset.from(DEFAULT_ZONE_OFFSET);
+        return OffsetTime.now().getOffset();
     }
 
     /**
@@ -113,7 +113,7 @@ public final class DateUtils {
 
         try {
             // Add default offset to the string, like "+0100"
-            String offset = DEFAULT_ZONE_OFFSET.toString().replace(":", "");
+            String offset = getDefaultOffset().toString().replace(":", "");
             return OffsetDateTime.parse(date.trim() + " " + offset,
                     DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER_PATTERN + " Z"));
         } catch (DateTimeException e) {
@@ -180,14 +180,24 @@ public final class DateUtils {
      * @param date The {@link Date} to convert to string.
      * @return The string representation of the date.
      */
-    public static String formatToISODateTime(Date date) {
-        String dateString = date.toInstant().toString();
+    public static String formatToISOInstant(Date date) {
+        String dateString = String.valueOf(date.toInstant());
 
         // Make sure we have milliseconds, even if they are 0
-        if (!dateString.contains(".")) {
-            dateString = dateString.substring(0, dateString.length() - 1) + ".000Z";
-        }
-        return dateString;
+        return (enforceMillisOnInstantString(dateString));
+    }
+
+    /**
+     * Converts a {@link OffsetDateTime} to a UTC zone ISO date-time string in
+     * <code>yyyy-MM-ddTHH:mm:ss.SSSZ</code> format.
+     * @param offsetDateTime The {@link OffsetDateTime} to convert to string.
+     * @return The string representation of the date.
+     */
+    public static String formatToISOInstant(OffsetDateTime offsetDateTime) {
+        String dateString = offsetDateTime.format(DateTimeFormatter.ISO_INSTANT);
+
+        // Make sure we have milliseconds, even if they are 0
+        return (enforceMillisOnInstantString(dateString));
     }
 
     /**
@@ -196,8 +206,8 @@ public final class DateUtils {
      * @param localDateTime The {@link LocalDateTime} to convert to string.
      * @return The string representation of the date.
      */
-    public static String formatToISODateTime(LocalDateTime localDateTime) {
-        return formatToISODateTimeWithOffset(localDateTime, DEFAULT_ZONE_OFFSET);
+    public static String formatToISOInstant(LocalDateTime localDateTime) {
+        return formatToISOInstantWithOffset(localDateTime, getDefaultOffset());
     }
 
     /**
@@ -207,21 +217,11 @@ public final class DateUtils {
      * @param offset The {@link ZoneOffset} to use.
      * @return The string representation of the date.
      */
-    public static String formatToISODateTimeWithOffset(LocalDateTime localDateTime, ZoneOffset offset) {
-        String dateString = localDateTime.toInstant(offset).toString();
+    public static String formatToISOInstantWithOffset(LocalDateTime localDateTime, ZoneOffset offset) {
+        String dateString = String.valueOf(localDateTime.toInstant(offset));
 
         // Make sure we have milliseconds, even if they are 0
-        if (!dateString.contains(".")) {
-            dateString = dateString.substring(0, dateString.length() - 1) + ".000Z";
-        } else if (dateString.length() > 23) {
-            // If we have milliseconds, make sure they are of 3 digits length
-            dateString = dateString.substring(0, 23) + "Z";
-        } else {
-            // If we have milliseconds, but aren't 3 digits length, we need to pad them
-            dateString = String.format("%-23s", dateString) + "Z";
-        }
-
-        return dateString;
+        return (enforceMillisOnInstantString(dateString));
     }
 
     /**
@@ -462,5 +462,21 @@ public final class DateUtils {
         calendar.set(Calendar.SECOND, second);
         calendar.set(Calendar.MILLISECOND, millis);
         return calendar.getTime();
+    }
+
+    /**
+     * Makes sure that the millis are shown on an ISO instant string.
+     * @param dateString The date string to enforce millis on.
+     * @return The string with millis enforced.
+     */
+    private static String enforceMillisOnInstantString(String dateString) {
+        if (!dateString.contains(".")) {
+            dateString = dateString.substring(0, dateString.length() - 1) + ".000Z";
+        } else {
+            // If we have milliseconds, make sure they are of 3 digits length at most
+            dateString = dateString.substring(0, ISO_INSTANT_LENGTH_WITHOUT_MILLIS) + "Z";
+        }
+
+        return dateString;
     }
 }

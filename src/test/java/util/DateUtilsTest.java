@@ -10,6 +10,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 
+import static com.github.dokkaltek.util.DateUtils.addMillis;
 import static com.github.dokkaltek.util.DateUtils.getDefaultOffset;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -203,26 +204,71 @@ class DateUtilsTest {
     }
 
     /**
-     * Test for {@link DateUtils#formatToISODateTime(Date)} method.
+     * Test for {@link DateUtils#formatToISOInstant(Date)} method.
      */
     @Test
     @DisplayName("Test date to ISO date time string")
-    void testFormatToISODateTime() {
-        String isoDate = DateUtils.formatToISODateTime(getSampleDate());
+    void testFormatToISOInstant() {
+        Date date = getSampleDate();
+        String isoDate = DateUtils.formatToISOInstant(date);
 
         // Check year and time, since those won't change
         assertEquals(SAMPLE_ISO_DATE_TIME.substring(0, 4), isoDate.substring(0, 4));
         assertEquals(SAMPLE_ISO_DATE_TIME.substring(14), isoDate.substring(14));
+
+        // Test not round nanos
+        date = addMillis(date, -21);
+        isoDate = DateUtils.formatToISOInstant(date);
+
+        assertEquals("20:11.300Z", isoDate.substring(14));
+
+        // Test short nanos result
+        date = addMillis(date, -300);
+        isoDate = DateUtils.formatToISOInstant(date);
+
+        assertEquals("000Z", isoDate.substring(20));
     }
 
     /**
-     * Test for {@link DateUtils#formatToISODateTime(LocalDateTime)} method.
+     * Test for {@link DateUtils#formatToISOInstant(Date)} method.
+     */
+    @Test
+    @DisplayName("Test offset date time to ISO date time string")
+    void testFormatOffsetDateTimeToISODateTime() {
+        OffsetDateTime dateTime = getSampleOffsetDateTime();
+        String isoDate = DateUtils.formatToISOInstant(dateTime);
+
+        // Check year and time, since those won't change
+        assertEquals(SAMPLE_ISO_DATE_TIME.substring(0, 4), isoDate.substring(0, 4));
+        assertEquals(SAMPLE_ISO_DATE_TIME.substring(14), isoDate.substring(14));
+
+        // Test not round nanos
+        dateTime = dateTime.plusNanos(5);
+        isoDate = DateUtils.formatToISOInstant(dateTime);
+
+        assertEquals(SAMPLE_ISO_DATE_TIME.substring(14), isoDate.substring(14));
+
+        // Test short nanos result
+        dateTime = dateTime.minusNanos(1_000_005);
+        isoDate = DateUtils.formatToISOInstant(dateTime);
+
+        assertEquals("320Z", isoDate.substring(20));
+
+        // Test short nanos result
+        dateTime = dateTime.minusNanos(320_000_000);
+        isoDate = DateUtils.formatToISOInstant(dateTime);
+
+        assertEquals("000Z", isoDate.substring(20));
+    }
+
+    /**
+     * Test for {@link DateUtils#formatToISOInstant(LocalDateTime)} method.
      */
     @Test
     @DisplayName("Test local date time to ISO date time string")
     void testFormatLocalDateTimeToISODateTime() {
         LocalDateTime localDateTime = getSampleLocalDateTime();
-        String isoDate = DateUtils.formatToISODateTime(localDateTime);
+        String isoDate = DateUtils.formatToISOInstant(localDateTime);
 
         // Check year and time, since those won't change
         assertEquals(SAMPLE_ISO_DATE_TIME.substring(0, 4), isoDate.substring(0, 4));
@@ -230,19 +276,19 @@ class DateUtilsTest {
 
         // Test not round nanos
         localDateTime = localDateTime.plusNanos(5);
-        isoDate = DateUtils.formatToISODateTime(localDateTime);
+        isoDate = DateUtils.formatToISOInstant(localDateTime);
 
         assertEquals(SAMPLE_ISO_DATE_TIME.substring(14), isoDate.substring(14));
 
         // Test short nanos result
         localDateTime = localDateTime.minusNanos(1_000_005);
-        isoDate = DateUtils.formatToISODateTime(localDateTime);
+        isoDate = DateUtils.formatToISOInstant(localDateTime);
 
         assertEquals("320Z", isoDate.substring(20));
 
         // Test short nanos result
         localDateTime = localDateTime.minusNanos(320_000_000);
-        isoDate = DateUtils.formatToISODateTime(localDateTime);
+        isoDate = DateUtils.formatToISOInstant(localDateTime);
 
         assertEquals("000Z", isoDate.substring(20));
     }
@@ -309,7 +355,7 @@ class DateUtilsTest {
         date = DateUtils.addSeconds(date, 30);
         assertEquals(30, DateUtils.getSeconds(date));
 
-        date = DateUtils.addMillis(date, 500);
+        date = addMillis(date, 500);
         assertEquals(500, DateUtils.getMillis(date));
     }
 
@@ -324,6 +370,6 @@ class DateUtilsTest {
     }
 
     private OffsetDateTime getSampleOffsetDateTime() {
-        return OffsetDateTime.of(getSampleLocalDateTime(), ZoneOffset.UTC);
+        return OffsetDateTime.of(getSampleLocalDateTime(), ZoneOffset.of("+01:00"));
     }
 }
