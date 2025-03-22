@@ -55,10 +55,35 @@ public final class StringUtils {
     }
 
     /**
+     * Concatenates a series of strings into one. Similar to <code>String.join()</code>, but without a delimiter.
+     * @param strings The strings to concatenate. If null, an empty string will be returned.
+     * @return The concatenated string.
+     */
+    public static String concatenate(String... strings) {
+        if (strings == null || strings.length == 0 || (strings.length == 1 && strings[0] == null)) {
+            return "";
+        }
+
+        // If only one string was passed, we return it as-is
+        if (strings.length == 1) {
+            return strings[0];
+        }
+
+        // Filter out null strings and concatenate
+        StringBuilder builder = new StringBuilder();
+        for (String s : strings) {
+            if (s != null) {
+                builder.append(s);
+            }
+        }
+        return builder.toString();
+    }
+
+    /**
      * Repeats a string the given number of times.
      * @param str The string to repeat.
      * @param times The number of times to repeat.
-     * @return The repeated string.
+     * @return The string repeated the specified number of times.
      */
     public static String repeat(String str, int times) {
         if (str == null || times < 0) {
@@ -80,12 +105,7 @@ public final class StringUtils {
      * @return The padded string.
      */
     public static String padLeft(String str, int length) {
-        if (str == null || str.length() >= length) {
-            return str;
-        }
-
-        String padding = repeat(" ", length - str.length());
-        return padding + str;
+        return padLeftWithChar(str, length, ' ');
     }
 
 
@@ -97,12 +117,7 @@ public final class StringUtils {
      * @return The padded string.
      */
     public static String padRight(String str, int length) {
-        if (str == null || str.length() >= length) {
-            return str;
-        }
-
-        String padding = repeat(" ", length - str.length());
-        return str + padding;
+        return padRightWithChar(str, length, ' ');
     }
 
     /**
@@ -110,7 +125,7 @@ public final class StringUtils {
      * If the string is null, it will return null.
      * @param str The string to pad.
      * @param length The length reach after padding.
-     * @param paddingChar The character to pad with.
+     * @param paddingChar The asChar to pad with.
      * @return The padded string.
      */
     public static String padLeftWithChar(String str, int length, char paddingChar) {
@@ -127,7 +142,7 @@ public final class StringUtils {
      * If the string is null, it will return null.
      * @param str The string to pad.
      * @param length The length reach after padding.
-     * @param paddingChar The character to pad with.
+     * @param paddingChar The asChar to pad with.
      * @return The padded string.
      */
     public static String padRightWithChar(String str, int length, char paddingChar) {

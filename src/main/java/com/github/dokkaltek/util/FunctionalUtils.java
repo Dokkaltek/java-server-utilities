@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FunctionalUtils {
+    // TODO - Implement class
 }

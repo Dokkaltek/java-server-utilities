@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 /**
  * Http header key constants.
  */
-@SuppressWarnings("unused")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class HttpHeaderKeys {
     /**
@@ -975,4 +974,14 @@ public class HttpHeaderKeys {
      * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto">Mozilla docs</a>
      */
     public static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
+
+    /**
+     * Header for amazon services to specify the content.
+     */
+    public static final String X_AMZ_CONTENT_SHA_256 = "x-amz-content-sha256";
+
+    /**
+     * The content length of the decoded message for an amazon message.
+     */
+    public static final String X_AMZ_DECODED_CONTENT_LENGTH = "x-amz-decoded-content-length";
 }

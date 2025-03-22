@@ -5,7 +5,7 @@ import lombok.Getter;
 import static com.github.dokkaltek.constant.ErrorStatus.INTERNAL_SERVER_ERROR;
 
 /**
- * General use exception class.
+ * Date conversion exception class.
  */
 @Getter
 public class DateConversionException extends GenericException {

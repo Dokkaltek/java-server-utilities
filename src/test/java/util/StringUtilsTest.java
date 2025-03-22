@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import static com.github.dokkaltek.util.StringUtils.capitalize;
 import static com.github.dokkaltek.util.StringUtils.capitalizeAll;
+import static com.github.dokkaltek.util.StringUtils.concatenate;
 import static com.github.dokkaltek.util.StringUtils.isBlankOrNull;
 import static com.github.dokkaltek.util.StringUtils.padLeft;
 import static com.github.dokkaltek.util.StringUtils.padLeftWithChar;
@@ -59,6 +60,21 @@ class StringUtilsTest {
         assertEquals(0, truncate("", 5).length());
         assertEquals("", truncate(SAMPLE_LONG_STRING, 0));
         assertEquals(SAMPLE_LONG_STRING, truncate(SAMPLE_LONG_STRING, -1));
+    }
+
+    /**
+     * Test for {@link StringUtils#concatenate} method.
+     */
+    @Test
+    @SuppressWarnings("RedundantArrayCreation")
+    @DisplayName("Test concatenating strings")
+    void testConcatenate() {
+        assertEquals(SAMPLE_LONG_STRING + SAMPLE_SHORT_STRING, concatenate(SAMPLE_LONG_STRING, SAMPLE_SHORT_STRING));
+        assertEquals("test", concatenate("test"));
+        assertEquals("", concatenate((String[]) null));
+        assertEquals("", concatenate((String) null));
+        assertEquals("", concatenate(new String[]{}));
+        assertEquals("test", concatenate("test", null));
     }
 
     /**
