@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SpecialChars {
+    public static final String EMPTY_STRING = "";
     public static final String QUESTION_MARK = "?";
     public static final String REVERSE_QUESTION_MARK = "¿";
     public static final String EXCLAMATION_MARK = "!";

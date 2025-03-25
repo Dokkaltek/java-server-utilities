@@ -3,6 +3,7 @@ package util;
 import com.github.dokkaltek.util.GeneratorUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.ReflectionUtils;
 
 import static com.github.dokkaltek.util.GeneratorUtils.generateRandomInt;
 import static org.junit.jupiter.api.Assertions.assertEquals;

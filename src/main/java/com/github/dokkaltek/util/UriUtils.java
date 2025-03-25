@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 
 import static com.github.dokkaltek.constant.literal.SpecialChars.AMPERSAND;
 import static com.github.dokkaltek.constant.literal.SpecialChars.BACKSLASH;
+import static com.github.dokkaltek.constant.literal.SpecialChars.EMPTY_STRING;
 import static com.github.dokkaltek.constant.literal.SpecialChars.EQUAL_SIGN;
 import static com.github.dokkaltek.constant.literal.SpecialChars.HASH;
 import static com.github.dokkaltek.constant.literal.SpecialChars.QUESTION_MARK;
@@ -37,7 +38,6 @@ import static com.github.dokkaltek.util.StringUtils.isBlankOrNull;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UriUtils {
     private static final String PROTOCOL_SEPARATOR = "://";
-    private static final String EMPTY_STRING = "";
 
     private static final Pattern URL_FRAGMENTS_PATTERN = Pattern.compile(
             "(.*://)?([a-zA-Z0-9.-]+)?(:\\d+)?(/[^?]*)?(\\\\?.+)?");

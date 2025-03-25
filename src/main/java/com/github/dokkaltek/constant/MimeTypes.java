@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
  * Http header media type constants.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class HeaderMediaTypes {
+public class MimeTypes {
     // Application types
     public static final String ABIWORD = "application/x-abiword";
     public static final String ARC = "application/x-freearc";
