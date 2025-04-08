@@ -1,6 +1,8 @@
 # Server utilities
 Server utilities library for java server applications. 
 
+The minimum supported version is **Java 8**.
+
 This library tries to be lightweight without having too many transitive dependencies.
 
 ## Things you can do with this library:
