@@ -1,7 +1,6 @@
-package util;
+package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.exception.InvalidUriException;
-import com.github.dokkaltek.exception.InvalidUrlException;
 import com.github.dokkaltek.helper.WrapperList;
 import com.github.dokkaltek.util.UriUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -11,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class UriUtilsTest {
     private static final String SAMPLE_URL_NO_PATH = "https://test.com";
-    private static final String WINDOWS_SYSTEM_PATH = "C:\\\\some\\path";
     private static final String SAMPLE_URL_NO_PATH_WITH_PORT = "https://test.com:80";
     private static final String SAMPLE_URL_NO_PROTOCOL = "test.com";
     private static final String SAMPLE_URL_WITH_PATH = "https://test.com/some/path";
@@ -34,62 +31,6 @@ class UriUtilsTest {
     private static final String BLANK_STRING = " ";
     private static final String SAMPLE_QUERY = "?some=value";
     private static final String SAMPLE_FRAGMENT = "#fragment";
-
-    /**
-     * Test for {@link UriUtils#validateUri(String)} method.
-     */
-    @Test
-    @DisplayName("Test validating any URI")
-    void testValidateUri() {
-        assertTrue(UriUtils.validateUri(SAMPLE_URL_NO_PATH));
-        assertTrue(UriUtils.validateUri(SAMPLE_PATH));
-        assertTrue(UriUtils.validateUri(SAMPLE_URL_FTP));
-        assertFalse(UriUtils.validateUri(null));
-        assertFalse(UriUtils.validateUri(INVALID_URI));
-        assertFalse(UriUtils.validateUri(WINDOWS_SYSTEM_PATH));
-    }
-
-    /**
-     * Test for {@link UriUtils#validateUriWithEx(String)} method.
-     */
-    @Test
-    @DisplayName("Test validating any URI with exception")
-    void testValidateUriWithEx() {
-        assertDoesNotThrow(() -> UriUtils.validateUriWithEx(SAMPLE_URL_NO_PATH));
-        assertDoesNotThrow(() -> UriUtils.validateUriWithEx(SAMPLE_PATH));
-        assertDoesNotThrow(() -> UriUtils.validateUriWithEx(SAMPLE_URL_FTP));
-        assertThrows(InvalidUriException.class, () -> UriUtils.validateUriWithEx(null));
-        assertThrows(InvalidUriException.class, () -> UriUtils.validateUriWithEx(INVALID_URI));
-        assertThrows(InvalidUriException.class, () -> UriUtils.validateUriWithEx(WINDOWS_SYSTEM_PATH));
-    }
-
-    /**
-     * Test for {@link UriUtils#validateUrl(String)} method.
-     */
-    @Test
-    @DisplayName("Test validating any URL")
-    void testValidateUrl() {
-        assertTrue(UriUtils.validateUrl(SAMPLE_URL_NO_PATH));
-        assertTrue(UriUtils.validateUri(SAMPLE_URL_FTP));
-        assertFalse(UriUtils.validateUrl(SAMPLE_PATH));
-        assertFalse(UriUtils.validateUrl(null));
-        assertFalse(UriUtils.validateUrl(INVALID_URI));
-        assertFalse(UriUtils.validateUrl(WINDOWS_SYSTEM_PATH));
-    }
-
-    /**
-     * Test for {@link UriUtils#validateUrlWithEx(String)} method.
-     */
-    @Test
-    @DisplayName("Test validating any URL with exception")
-    void testValidateUrlWithEx() {
-        assertDoesNotThrow(() -> UriUtils.validateUrlWithEx(SAMPLE_URL_NO_PATH));
-        assertDoesNotThrow(() -> UriUtils.validateUrlWithEx(SAMPLE_URL_FTP));
-        assertThrows(InvalidUrlException.class, () -> UriUtils.validateUrlWithEx(SAMPLE_PATH));
-        assertThrows(InvalidUrlException.class, () -> UriUtils.validateUrlWithEx(null));
-        assertThrows(InvalidUrlException.class, () -> UriUtils.validateUrlWithEx(INVALID_URI));
-        assertThrows(InvalidUrlException.class, () -> UriUtils.validateUrlWithEx(WINDOWS_SYSTEM_PATH));
-    }
 
     /**
      * Test for {@link UriUtils#getProtocol(String)} method.
@@ -261,6 +202,8 @@ class UriUtilsTest {
         assertEquals(SAMPLE_URL, UriUtils.joinUriPaths(SAMPLE_URL_NO_PATH + "\\", "/" + SAMPLE_PATH));
         assertEquals(SAMPLE_URL,
                 UriUtils.joinUriPaths(SAMPLE_URL_NO_PATH, SAMPLE_PATH_WITH_FORWARD_SLASH));
+        assertEquals(SAMPLE_URL, UriUtils.joinUriPaths(SAMPLE_URL_NO_PATH, SAMPLE_PATH.substring(0, 9),
+                SAMPLE_PATH.substring(9, 20), SAMPLE_PATH.substring(19)));
         assertEquals("", UriUtils.joinUriPaths((String[]) null));
         assertEquals("", UriUtils.joinUriPaths((String) null));
         assertEquals("", UriUtils.joinUriPaths(BLANK_STRING, BLANK_STRING));

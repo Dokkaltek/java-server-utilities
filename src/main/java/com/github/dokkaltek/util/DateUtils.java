@@ -20,6 +20,7 @@ import java.util.GregorianCalendar;
 import static com.github.dokkaltek.constant.DateFormats.DATE_TIME_FORMAT;
 import static com.github.dokkaltek.constant.DateFormats.DATE_TIME_MILLI_FORMAT;
 import static com.github.dokkaltek.constant.DateFormats.ISO_DATE_FORMAT;
+import static com.github.dokkaltek.util.StringUtils.isBlankOrNull;
 
 /**
  * Utility class to perform date related operations.
@@ -65,16 +66,20 @@ public final class DateUtils {
     }
 
     /**
-     * Gets a date from a string in the specified format.
+     * Gets a date from a string in the specified format. If date or format is null or empty, returns null.
      * @param date The date string to convert to a {@link Date}.
      * @param format The format of the date string.
      * @return The {@link Date} parsed from the string.
      */
     public static Date parseDate(String date, String format) {
+        if (isBlankOrNull(date) || isBlankOrNull(format)) {
+            return null;
+        }
+
         SimpleDateFormat formatter = new SimpleDateFormat(format);
 
         try {
-            return formatter.parse(date);
+            return formatter.parse(date.trim());
         } catch (ParseException e) {
             throw new DateConversionException(e);
         }

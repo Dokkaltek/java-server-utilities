@@ -74,7 +74,7 @@ public class WrapperList<T> extends ArrayList<T> {
      * Same as <code>list.size() - 1</code>.
      * @return The last element of the list if there was any, otherwise it will return -1.
      */
-    public int indexOfLast() {
+    public int lastIndex() {
         return size() - 1;
     }
 

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SpecialChars {
     public static final String EMPTY_STRING = "";
+    public static final String SPACE = " ";
     public static final String QUESTION_MARK = "?";
     public static final String REVERSE_QUESTION_MARK = "¿";
     public static final String EXCLAMATION_MARK = "!";
@@ -79,9 +80,9 @@ public final class SpecialChars {
     public static final String STAR = "⭐";
     public static final String TRIANGLE_POINTER_RIGHT = "►";
     public static final String TRIANGLE_POINTER_LEFT = "◄";
-    public static final String DIAMOND_WITH_DOT = "⋅";
-    public static final String CIRCLE = "⊙";
-    public static final String CIRCLE_WITH_DOT = "⊚";
+    public static final String CENTRAL_DOT = "⋅";
+    public static final String CIRCLE = "○";
+    public static final String CIRCLE_WITH_DOT = "⊙";
     public static final String CIRCLE_WITH_CROSS = "⊗";
     public static final String CIRCLE_WITH_PLUS = "⊕";
     public static final String RADIOACTIVE = "☢";
@@ -106,4 +107,12 @@ public final class SpecialChars {
     public static final String ARROW_UP = "🠅";
     public static final String ARROW_DOWN = "🠇";
 
+    /**
+     * Converts the first character of a String to a char.
+     * @param specialChar The String to convert.
+     * @return The first character of the String.
+     */
+    public static char toChar(String specialChar) {
+        return specialChar.charAt(0);
+    }
 }

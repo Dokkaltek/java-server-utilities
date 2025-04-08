@@ -1,4 +1,4 @@
-package util;
+package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.exception.DateConversionException;
 import com.github.dokkaltek.util.DateUtils;

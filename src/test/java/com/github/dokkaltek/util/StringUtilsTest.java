@@ -1,4 +1,4 @@
-package util;
+package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.util.StringUtils;
 import org.junit.jupiter.api.DisplayName;

@@ -1,7 +1,6 @@
 package com.github.dokkaltek.util;
 
-import com.github.dokkaltek.constant.ErrorStatus;
-import com.github.dokkaltek.exception.GenericException;
+import com.github.dokkaltek.exception.CryptoException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -71,15 +70,11 @@ public final class GeneratorUtils {
      * @return The generated string.
      */
     public static String generateSecureRandomString(int length, String allowedCharacters) {
-        final SecureRandom secureRandom;
-        try {
-            secureRandom = SecureRandom.getInstanceStrong();
-        } catch (NoSuchAlgorithmException e) {
-            // Since all JDKs are supposed to provide at least one strong algorithm, this should never happen
-            throw new GenericException("No strong algorithm available", e, ErrorStatus.INTERNAL_SERVER_ERROR.code());
+        if (length < 0 || allowedCharacters == null || allowedCharacters.isEmpty()) {
+            return null;
         }
 
-        return secureRandom
+        return getSecureRandomInstance()
                 .ints(length, 0, allowedCharacters.length())
                 .mapToObj(allowedCharacters::charAt)
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
@@ -104,6 +99,10 @@ public final class GeneratorUtils {
      * @return The generated string.
      */
     public static String generateRandomString(int length, String allowedCharacters) {
+        if (length < 0 || allowedCharacters == null || allowedCharacters.isEmpty()) {
+            return null;
+        }
+
         return RANDOM
                 .ints(length, 0, allowedCharacters.length())
                 .mapToObj(allowedCharacters::charAt)
@@ -119,5 +118,18 @@ public final class GeneratorUtils {
      */
     public static int generateRandomInt(int min, int max) {
         return RANDOM.nextInt(max - min + 1) + min;
+    }
+
+    /**
+     * Gets a strong instance of {@link SecureRandom}.
+     * @return The strong instance of {@link SecureRandom}.
+     */
+    public static SecureRandom getSecureRandomInstance() {
+        try {
+            return SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            // Since all JDKs are supposed to provide at least one strong algorithm, this should never happen
+            throw new CryptoException("No strong algorithm available", e);
+        }
     }
 }

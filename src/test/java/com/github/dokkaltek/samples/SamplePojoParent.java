@@ -1,4 +1,4 @@
-package samples;
+package com.github.dokkaltek.samples;
 
 /**
  * Sample POJO class to test reflection.

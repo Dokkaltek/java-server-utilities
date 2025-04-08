@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ReflectionUtils {
+    private static final String LOG_PREFIX = "Field ";
 
     /**
      * Gets a {@link Field} from an object.
@@ -32,7 +33,8 @@ public final class ReflectionUtils {
             if (superClass != null && !superClass.equals(Object.class)) {
                 return getClassField(superClass, fieldName);
             }
-            throw new ReflectionException("Field " + fieldName + " not found for class " + objClass.getName());
+            throw new ReflectionException(LOG_PREFIX + fieldName + " not found for class " +
+                    objClass.getCanonicalName());
         }
     }
 
@@ -76,7 +78,50 @@ public final class ReflectionUtils {
         if (result != null) {
             return result;
         }
-        throw new NullPointerException("Field " + fieldName + " is null");
+        throw new NullPointerException(LOG_PREFIX + fieldName + " is null.");
+    }
+
+    /**
+     * Gets a static field of a class.
+     * @param objClass The object to get the field from.
+     * @param fieldName The name of the field.
+     * @return The value of the field.
+     * @param <T> The type of the field.
+     */
+    public static <T> T getStaticField(Class<?> objClass, String fieldName) {
+        try {
+            return (T) getClassField(objClass, fieldName).get(null);
+        } catch (IllegalAccessException e) {
+            throw new ReflectionException(e);
+        }
+    }
+
+    /**
+     * Gets a static field from a class, or a default value if the field is null.
+     * @param objClass The class to get the field from.
+     * @param fieldName The name of the field.
+     * @return The value of the field.
+     * @param <T> The type of the field.
+     */
+    public static <T> T getStaticFieldOrElse(Class<?> objClass, String fieldName, T defaultValue) {
+        T result = getStaticField(objClass, fieldName);
+        return result != null ? result : defaultValue;
+    }
+
+    /**
+     * Gets a static field from a class, or a default value if the field is null.
+     * @param objClass The class to get the field from.
+     * @param fieldName The name of the field.
+     * @return The value of the field.
+     * @param <T> The type of the field.
+     * @throws NullPointerException If the field is null
+     */
+    public static <T> T getStaticFieldOrThrow(Class<?> objClass, String fieldName) {
+        T result = getStaticField(objClass, fieldName);
+        if (result != null) {
+            return result;
+        }
+        throw new NullPointerException(LOG_PREFIX + fieldName + " is null.");
     }
 
     /**
@@ -124,7 +169,51 @@ public final class ReflectionUtils {
     }
 
     /**
-     * Get a method from an object.
+     * Sets a static field of a class.
+     * @param objClass The class to set the field of.
+     * @param fieldName The name of the field.
+     * @param value The value to set the field to.
+     * @param <T> The type of the field.
+     */
+    public static <T> void setStaticField(Class<?> objClass, String fieldName, T value) {
+        try {
+            getClassField(objClass, fieldName).set(null, value);
+        } catch (IllegalAccessException e) {
+            throw new ReflectionException(e);
+        }
+    }
+
+    /**
+     * Sets a static field of a class if the value we are setting it to is not null.
+     * @param objClass The class to set the field of.
+     * @param fieldName The name of the field.
+     * @param value The value to set the field to.
+     * @param <T> The type of the field.
+     */
+    public static <T> void setStaticFieldIfNewIsNotNull(Class<?> objClass, String fieldName, T value) {
+        if (value == null)
+            return;
+        setStaticField(objClass, fieldName, value);
+    }
+
+    /**
+     * Sets a static field of a class if the value it currently has is null.
+     * @param objClass The class to set the field of.
+     * @param fieldName The name of the field.
+     * @param value The value to set the field to.
+     * @param <T> The type of the field.
+     */
+    public static <T> void setStaticFieldIfNull(Class<?> objClass, String fieldName, T value) {
+        if (value == null)
+            return;
+
+        if (getStaticField(objClass, fieldName) == null) {
+            setStaticField(objClass, fieldName, value);
+        }
+    }
+
+    /**
+     * Get a method from a class (both static and non-static).
      * @param methodClass The class to get the method from.
      * @param methodName The method name to get.
      * @return the {@link Method} reference.
@@ -145,7 +234,7 @@ public final class ReflectionUtils {
     }
 
     /**
-     * Invokes a method on an object without any return value.
+     * Invokes a method on an object.
      * @param object The object to invoke the method on.
      * @param methodName The name of the method to invoke.
      * @param args The arguments to pass to the method.
@@ -162,6 +251,29 @@ public final class ReflectionUtils {
 
         try {
             return (T) getMethod(object.getClass(), methodName, parameterTypes).invoke(object, args);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new ReflectionException(e);
+        }
+    }
+
+    /**
+     * Invokes a static method on an object without any return value.
+     * @param objClass The class to invoke the method on.
+     * @param methodName The name of the method to invoke.
+     * @param args The arguments to pass to the method.
+     */
+    public static <T> T invokeStaticMethod(Class<?> objClass, String methodName, Object... args) {
+        Class<?>[] parameterTypes = null;
+
+        if (args != null) {
+            parameterTypes = new Class<?>[args.length];
+            for (int i = 0; i < args.length; i++) {
+                parameterTypes[i] = args[i].getClass();
+            }
+        }
+
+        try {
+            return (T) getMethod(objClass, methodName, parameterTypes).invoke(null, args);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
             throw new ReflectionException(e);
         }

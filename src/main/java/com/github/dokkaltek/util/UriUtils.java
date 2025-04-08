@@ -1,7 +1,7 @@
 package com.github.dokkaltek.util;
 
+import com.github.dokkaltek.exception.InvalidInputException;
 import com.github.dokkaltek.exception.InvalidUriException;
-import com.github.dokkaltek.exception.InvalidUrlException;
 import com.github.dokkaltek.helper.WrapperList;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -64,19 +64,6 @@ public final class UriUtils {
     }
 
     /**
-     * Validates that a given uri is valid and throws an exception otherwise.
-     * @param uri The uri to validate.
-     * @throws InvalidUriException If the url is not valid or is null.
-     */
-    public static void validateUriWithEx(String uri) {
-        try {
-            new URI(uri);
-        } catch (URISyntaxException | NullPointerException e) {
-            throw new InvalidUriException(e);
-        }
-    }
-
-    /**
      * Validates that a given url is valid.
      * @param url The url to validate.
      * @return True if the url is valid, false otherwise.
@@ -93,19 +80,6 @@ public final class UriUtils {
         }
 
         return true;
-    }
-
-    /**
-     * Validates that a given url is valid and throws an exception otherwise.
-     * @param url The url to validate.
-     * @throws InvalidUriException If the url is not valid or is null.
-     */
-    public static void validateUrlWithEx(String url) {
-        try {
-            new URL(url);
-        } catch (MalformedURLException | NullPointerException e) {
-            throw new InvalidUrlException(e);
-        }
     }
 
     /**
@@ -347,7 +321,7 @@ public final class UriUtils {
 
     /**
      * Joins the parts of the uri making sure that no double slashes are added when joining.
-     * @param paths The main uri and paths to join.
+     * @param paths The base uri, the paths, the query, or the fragment to join.
      * @return The joined url.
      * @throws InvalidUriException If any of the paths is invalid (but not on null).
      */
@@ -357,8 +331,23 @@ public final class UriUtils {
         }
 
         StringBuilder builder = new StringBuilder(sanitizeUriEnd(paths[0]));
+        boolean containsQuery = false;
+        boolean containsFragment = false;
         for (int i = 1; i < paths.length; i++) {
-            builder.append(sanitizeUriStart(paths[i]));
+            String pathToJoin = paths[i];
+            if (pathToJoin == null)
+                pathToJoin = EMPTY_STRING;
+
+            if (containsFragment || pathToJoin.startsWith(QUESTION_MARK) || pathToJoin.startsWith(HASH))
+                builder.append(pathToJoin);
+            else if (containsQuery)
+                builder = handleQueryInPathJoin(builder, pathToJoin);
+            else
+                builder.append(sanitizeUriStart(pathToJoin));
+
+            String builderSoFar = builder.toString();
+            containsQuery = builderSoFar.contains(QUESTION_MARK);
+            containsFragment = builderSoFar.contains(HASH);
         }
         return builder.toString();
     }
@@ -989,5 +978,45 @@ public final class UriUtils {
                 queryBuilder.append(AMPERSAND);
             }
         }
+    }
+
+    /**
+     * Validates that a given uri is valid and throws an exception otherwise.
+     * @param uri The uri to validate.
+     * @throws InvalidUriException If the uri is not valid or is null.
+     * @throws InvalidInputException If the uri is null or empty.
+     */
+    private static void validateUriWithEx(String uri) {
+        try {
+            new URI(uri);
+        } catch (URISyntaxException | NullPointerException e) {
+            throw new InvalidUriException(e);
+        }
+    }
+
+    /**
+     * Handles the query in the path join.
+     * @param builder The {@link StringBuilder} that holds the uri being built.
+     * @param pathToJoin The path to join.
+     * @return The updated {@link StringBuilder}.
+     */
+    private static StringBuilder handleQueryInPathJoin(StringBuilder builder, String pathToJoin) {
+        String lastBuilderChar = String.valueOf(builder.charAt(builder.length() - 1));
+        if (AMPERSAND.equals(lastBuilderChar)) {
+            if (pathToJoin.startsWith(AMPERSAND)) {
+                builder.append(pathToJoin.substring(1));
+            } else {
+                builder.append(pathToJoin);
+            }
+        } else if (pathToJoin.startsWith(AMPERSAND)) {
+            if (EQUAL_SIGN.equals(lastBuilderChar)) {
+                builder = new StringBuilder(builder.substring(0, builder.length() - 1)).append(pathToJoin);
+            } else {
+                builder.append(pathToJoin);
+            }
+        } else {
+            builder.append(pathToJoin);
+        }
+        return builder;
     }
 }

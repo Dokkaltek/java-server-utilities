@@ -1,22 +1,29 @@
 package com.github.dokkaltek.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+import com.github.dokkaltek.exception.InvalidInputException;
 import com.github.dokkaltek.exception.JSONException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.java.Log;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.github.dokkaltek.util.StringUtils.isBlankOrNull;
 
 /**
  * Utility class to perform operations related to json strings.
  */
+@Log
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JsonUtils {
     private static ObjectMapper objectMapper = initObjectMapper();
@@ -27,6 +34,39 @@ public final class JsonUtils {
      */
     public static void replaceObjectMapper(ObjectMapper objectMapper) {
         JsonUtils.objectMapper = objectMapper;
+    }
+
+    /**
+     * Validates that a given json string is valid.
+     * @param json The json string to validate.
+     * @return True if the json string is valid, false otherwise.
+     */
+    public static boolean validateJSON(String json) {
+        if (isBlankOrNull(json))
+            return false;
+
+        try {
+            objectMapper.readTree(json);
+            return true;
+        } catch (JsonProcessingException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validates that a given json string is valid and throws an exception otherwise.
+     * @param json The json string to validate.
+     * @throws JSONException If the json string is not valid.
+     */
+    public static void validateJSONWithEx(String json) {
+        if (isBlankOrNull(json))
+            throw new InvalidInputException("The given JSON was null or empty.");
+
+        try {
+            objectMapper.readTree(json);
+        } catch (JsonProcessingException | IllegalArgumentException e) {
+            throw new JSONException(e);
+        }
     }
 
     /**
@@ -58,6 +98,8 @@ public final class JsonUtils {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
+            log.info(String.format("Error converting object to json string, returning default value '%s' instead.",
+                    defaultValue));
             return defaultValue;
         }
     }
@@ -71,6 +113,8 @@ public final class JsonUtils {
      * @throws JSONException If the object cannot be converted.
      */
     public static <T> T parseJSON(String json, Class<T> clazz) {
+        if (isBlankOrNull(json))
+            return null;
         try {
             return objectMapper.readValue(json, clazz);
         } catch (JsonProcessingException e) {
@@ -95,6 +139,8 @@ public final class JsonUtils {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (JsonProcessingException e) {
+            log.info(String.format("Error converting json string to object, returning default value '%s' instead.",
+                    defaultValue));
             return defaultValue;
         }
     }
@@ -111,6 +157,38 @@ public final class JsonUtils {
         try {
             return objectMapper.writeValueAsBytes(json);
         } catch (JsonProcessingException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts a json string to a map.
+     * @param json The json string to convert.
+     * @return The map representation of the json string.
+     */
+    public static Map<String, Object> convertJSONToMap(String json) {
+        if (isBlankOrNull(json))
+            return Collections.emptyMap();
+        try {
+            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {};
+            return objectMapper.readValue(json, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts a json string to a map.
+     * @param object The json string to convert.
+     * @return The map representation of the json string.
+     */
+    public static Map<String, Object> convertObjectToMap(Object object) {
+        if (object == null)
+            return Collections.emptyMap();
+        try {
+            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {};
+            return objectMapper.convertValue(object, typeRef);
+        } catch (IllegalArgumentException e) {
             throw new JSONException(e);
         }
     }
@@ -146,7 +224,7 @@ public final class JsonUtils {
      * @param json The json string to read.
      * @return The {@link JsonNode} representation.
      */
-    public static JsonNode readJson(String json) {
+    public static JsonNode readJSON(String json) {
         if (isBlankOrNull(json))
             return null;
 
@@ -171,7 +249,7 @@ public final class JsonUtils {
      * @param json The json string to read.
      * @return The {@link ArrayNode} representation.
      */
-    public static ArrayNode readJsonArray(String json) {
+    public static ArrayNode readJSONArray(String json) {
         if (isBlankOrNull(json))
             return null;
 
@@ -192,6 +270,8 @@ public final class JsonUtils {
      * @param <T> The type of the object.
      */
     public static <T> T deepCopy(T object) {
+        if (object == null)
+            return null;
         try {
             TokenBuffer tb = new TokenBuffer(new ObjectMapper(), false);
             objectMapper.writeValue(tb, object);

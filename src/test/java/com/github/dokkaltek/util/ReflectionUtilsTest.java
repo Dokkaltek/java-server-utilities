@@ -1,12 +1,11 @@
-package util;
+package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.exception.ReflectionException;
-import com.github.dokkaltek.util.ReflectionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import samples.SampleAnnotation;
-import samples.SamplePojo;
+import com.github.dokkaltek.samples.SampleAnnotation;
+import com.github.dokkaltek.samples.SamplePojo;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,6 +27,7 @@ class ReflectionUtilsTest {
         samplePojo.setName("John");
         samplePojo.setAge(30);
         samplePojo.setDescription("test");
+        SamplePojo.emptyStaticValue = null;
     }
 
     /**
@@ -59,12 +59,49 @@ class ReflectionUtilsTest {
      * Test for {@link ReflectionUtils#getFieldOrThrow(Object, String)} method.
      */
     @Test
-    @DisplayName("Test getting a field or else a default value")
+    @DisplayName("Test getting a field or else a throw exception")
     void testGetFieldOrThrow() {
         SamplePojo emptyPojo = new SamplePojo();
         assertThrows(NullPointerException.class, () -> ReflectionUtils.getFieldOrThrow(emptyPojo, "name"));
         assertEquals(samplePojo.getName(), ReflectionUtils.getFieldOrThrow(samplePojo, "name"));
         assertEquals(samplePojo.getAge(), (int) ReflectionUtils.getField(samplePojo, "age"));
+    }
+
+    /**
+     * Test for {@link ReflectionUtils#getStaticField(Class, String)} method.
+     */
+    @Test
+    @DisplayName("Test getting a static field")
+    void testGetStaticField() {
+        assertEquals(SAMPLE_VALUE, ReflectionUtils.getStaticField(SamplePojo.class, "SAMPLE_STATIC_VALUE"));
+        assertNull(ReflectionUtils.getStaticField(SamplePojo.class, "emptyStaticValue"));
+        assertThrows(ReflectionException.class, () ->
+                ReflectionUtils.getStaticField(SamplePojo.class, "nonexistent_field"));
+    }
+
+    /**
+     * Test for {@link ReflectionUtils#getStaticFieldOrElse(Class, String, Object)} method.
+     */
+    @Test
+    @DisplayName("Test getting a static field or else a default value")
+    void testGetStaticFieldOrElse() {
+        final String testValue = "test";
+        assertEquals(SAMPLE_VALUE, ReflectionUtils.getStaticFieldOrElse(SamplePojo.class,
+                "SAMPLE_STATIC_VALUE", testValue));
+        assertEquals(testValue, ReflectionUtils.getStaticFieldOrElse(SamplePojo.class,
+                "emptyStaticValue", testValue));
+    }
+
+    /**
+     * Test for {@link ReflectionUtils#getStaticFieldOrThrow(Class, String)} method.
+     */
+    @Test
+    @DisplayName("Test getting a static field or else throw exception")
+    void testGetStaticFieldOrThrow() {
+        assertThrows(NullPointerException.class, () -> ReflectionUtils.getStaticFieldOrThrow(SamplePojo.class,
+                "emptyStaticValue"));
+        assertEquals(SAMPLE_VALUE, ReflectionUtils.getStaticFieldOrThrow(SamplePojo.class,
+                "SAMPLE_STATIC_VALUE"));
     }
 
     /**
@@ -94,6 +131,30 @@ class ReflectionUtilsTest {
     }
 
     /**
+     * Test for {@link ReflectionUtils#setStaticFieldIfNewIsNotNull(Class, String, Object)} method.
+     */
+    @Test
+    @DisplayName("Test setting a static field if new value is not null")
+    void testSetStaticFieldIfNewIsNotNull() {
+        ReflectionUtils.setStaticFieldIfNewIsNotNull(SamplePojo.class, "emptyStaticValue", SAMPLE_VALUE);
+        assertEquals(SAMPLE_VALUE, SamplePojo.emptyStaticValue);
+        ReflectionUtils.setStaticFieldIfNewIsNotNull(SamplePojo.class, "emptyStaticValue", null);
+        assertEquals(SAMPLE_VALUE, SamplePojo.emptyStaticValue);
+    }
+
+    /**
+     * Test for {@link ReflectionUtils#setStaticFieldIfNull(Class, String, Object)} method.
+     */
+    @Test
+    @DisplayName("Test setting a static field if current value is null")
+    void testSetStaticFieldIfNull() {
+        ReflectionUtils.setStaticFieldIfNull(SamplePojo.class, "emptyStaticValue", SAMPLE_VALUE);
+        assertEquals(SAMPLE_VALUE, SamplePojo.emptyStaticValue);
+        ReflectionUtils.setStaticFieldIfNull(SamplePojo.class, "emptyStaticValue", "test123");
+        assertEquals(SAMPLE_VALUE, SamplePojo.emptyStaticValue);
+    }
+
+    /**
      * Test for {@link ReflectionUtils#invokeMethod(Object, String, Object...)} method.
      */
     @Test
@@ -104,6 +165,19 @@ class ReflectionUtilsTest {
         assertEquals(SAMPLE_VALUE, emptyPojo.getDescription());
         assertEquals(SAMPLE_VALUE, ReflectionUtils.invokeMethod(emptyPojo, "getDescription"));
         assertThrows(ReflectionException.class, () -> ReflectionUtils.invokeMethod(emptyPojo, "nonexistent_method"));
+    }
+
+    /**
+     * Test for {@link ReflectionUtils#invokeStaticMethod(Class, String, Object...)} method.
+     */
+    @Test
+    @DisplayName("Test invoking a static method")
+    void testInvokeStaticMethod() {
+        ReflectionUtils.invokeStaticMethod(SamplePojo.class, "setEmptyStaticValue", SAMPLE_VALUE);
+        assertEquals(SAMPLE_VALUE, SamplePojo.emptyStaticValue);
+        assertEquals(SAMPLE_VALUE, ReflectionUtils.invokeStaticMethod(SamplePojo.class, "getSampleStaticValue"));
+        assertThrows(ReflectionException.class, () -> ReflectionUtils.invokeStaticMethod(SamplePojo.class,
+                "nonexistent_method"));
     }
 
     /**
