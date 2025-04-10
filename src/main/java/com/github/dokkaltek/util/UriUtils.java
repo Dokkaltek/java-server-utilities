@@ -152,7 +152,7 @@ public final class UriUtils {
         }
 
         try {
-            return sanitizeUriStart(new URI(uri).getPath());
+            return sanitizePathStart(new URI(uri).getPath());
         } catch (URISyntaxException ex) {
             throw new InvalidUriException(ex);
         }
@@ -229,12 +229,12 @@ public final class UriUtils {
     }
 
     /**
-     * Sanitizes the ending of the uri so that it doesn't end in a slash.
+     * Sanitizes the ending of the uri path so that it doesn't end in a slash.
      * @param uri The uri to sanitize the ending of.
      * @return The sanitized ending uri.
      * @throws InvalidUriException If the uri is not valid (but not on null).
      */
-    public static String sanitizeUriEnd(String uri) {
+    public static String sanitizePathEnd(String uri) {
         if (isBlankOrNull(uri)) {
             return EMPTY_STRING;
         }
@@ -258,7 +258,7 @@ public final class UriUtils {
      * @return The sanitized path.
      * @throws InvalidUriException If the uri is not valid (but not on null).
      */
-    public static String sanitizeUriStart(String path) {
+    public static String sanitizePathStart(String path) {
         if (isBlankOrNull(path)) {
             return EMPTY_STRING;
         }
@@ -274,7 +274,7 @@ public final class UriUtils {
 
             // If the path actually holds a protocol or a host, or starts with a question mark or a hash, return it
             if (path.contains(PROTOCOL_SEPARATOR) || HOST_PATTERN.matcher(path).find()) {
-                return sanitizeUriEnd(path);
+                return sanitizePathEnd(path);
             } else if (path.startsWith(QUESTION_MARK) || path.startsWith(HASH)) {
                 return path;
             }
@@ -330,7 +330,7 @@ public final class UriUtils {
             return EMPTY_STRING;
         }
 
-        StringBuilder builder = new StringBuilder(sanitizeUriEnd(paths[0]));
+        StringBuilder builder = new StringBuilder(sanitizePathEnd(paths[0]));
         boolean containsQuery = false;
         boolean containsFragment = false;
         for (int i = 1; i < paths.length; i++) {
@@ -343,7 +343,7 @@ public final class UriUtils {
             else if (containsQuery)
                 builder = handleQueryInPathJoin(builder, pathToJoin);
             else
-                builder.append(sanitizeUriStart(pathToJoin));
+                builder.append(sanitizePathStart(pathToJoin));
 
             String builderSoFar = builder.toString();
             containsQuery = builderSoFar.contains(QUESTION_MARK);
@@ -399,7 +399,7 @@ public final class UriUtils {
 
         validateUriWithEx(uri);
 
-        String sanitizedHost = sanitizeUriEnd(host);
+        String sanitizedHost = sanitizePathEnd(host);
         if (EMPTY_STRING.equals(uri)) {
             return sanitizedHost;
         }
@@ -460,7 +460,7 @@ public final class UriUtils {
 
         validateUriWithEx(uri);
 
-        String sanitizedPath = sanitizeUriStart(path);
+        String sanitizedPath = sanitizePathStart(path);
         if (EMPTY_STRING.equals(uri)) {
             return sanitizedPath;
         }
@@ -749,7 +749,7 @@ public final class UriUtils {
             if (uri.startsWith(QUESTION_MARK) || uri.startsWith(SLASH) || uri.startsWith(HASH)) {
                 return uri;
             } else {
-                return sanitizeUriStart(uri);
+                return sanitizePathStart(uri);
             }
         }
 
@@ -773,7 +773,7 @@ public final class UriUtils {
             if (uri.startsWith(QUESTION_MARK) || uri.startsWith(SLASH) || uri.startsWith(HASH)) {
                 return uri;
             } else {
-                return sanitizeUriStart(uri);
+                return sanitizePathStart(uri);
             }
         }
 
@@ -794,7 +794,7 @@ public final class UriUtils {
         validateUriWithEx(uri);
 
         if (!uri.contains(PROTOCOL_SEPARATOR) && !HOST_PATTERN.matcher(uri).find())
-            uri = sanitizeUriStart(uri);
+            uri = sanitizePathStart(uri);
 
         return URL_FRAGMENTS_PATTERN.matcher(uri).replaceFirst("$1$2$3$5");
     }
@@ -851,7 +851,7 @@ public final class UriUtils {
             result = result.substring(0, result.length() - 1);
         }
 
-        return sanitizeUriStart(result) + fragment;
+        return sanitizePathStart(result) + fragment;
     }
 
     /**
@@ -876,7 +876,7 @@ public final class UriUtils {
         }
 
         String uriWithoutQuery = uri.split(BACKSLASH + QUESTION_MARK)[0];
-        return sanitizeUriStart(uriWithoutQuery) + fragment;
+        return sanitizePathStart(uriWithoutQuery) + fragment;
     }
 
     /**
@@ -894,7 +894,7 @@ public final class UriUtils {
 
         // Remove fragment if it had one, and add the new one
         String[] fragmentParts = uri.split(HASH);
-        return sanitizeUriStart(fragmentParts[0]);
+        return sanitizePathStart(fragmentParts[0]);
     }
 
     /**

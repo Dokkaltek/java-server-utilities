@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import static com.github.dokkaltek.constant.ErrorStatus.INTERNAL_SERVER_ERROR;
 import static com.github.dokkaltek.constant.literal.SpecialChars.EMPTY_STRING;
+import static com.github.dokkaltek.util.StringUtils.isBlankOrNull;
 
 /**
  * Utility class for RSA cryptography related operations.
@@ -137,34 +138,27 @@ public class RSAUtils {
     }
 
     /**
-     * Encrypts a message using the given public key with RSA/None/OAEPWithSHA-256AndMGF1Padding.
+     * Encrypts a message using the given public key with RSA/None/OAEPWithSHA-256AndMGF1Padding and then encodes
+     * the result to base64 for safe string conversion.
      * @param message The message to encrypt.
      * @param publicKey The public key to use.
      */
-    public static String encryptRSA(String message, PublicKey publicKey) {
-        return encryptRSAWithAlgorithm(ALGORITHM_TYPE, message, publicKey);
+    public static String encryptToRSA(String message, PublicKey publicKey) {
+        return encryptToRSAWithAlgorithm(ALGORITHM_TYPE, message, publicKey);
     }
 
     /**
-     * Encrypts a message using the given public key with the given algorithm.
-     * @param algorithm The algorithm used to encrypt the message.
-     * @param message The message to encrypt.
+     * Encrypts bytes using the given public key with RSA/None/OAEPWithSHA-256AndMGF1Padding.
+     * @param bytes The bytes to encrypt.
      * @param publicKey The public key to use.
      */
-    public static String encryptRSAWithAlgorithm(String algorithm, String message, PublicKey publicKey) {
-        try {
-            Cipher encryptCipher = Cipher.getInstance(algorithm);
-            encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            byte[] encryptedMessageBytes = encryptCipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
-            return Base64.getEncoder().encodeToString(encryptedMessageBytes);
-        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
-                 IllegalBlockSizeException | BadPaddingException ex) {
-            throw new CryptoException(ERROR_CODE, ex);
-        }
+    public static byte[] encryptBytesToRSA(byte[] bytes, PublicKey publicKey) {
+        return encryptBytesToRSAWithAlgorithm(ALGORITHM_TYPE, bytes, publicKey);
     }
 
     /**
-     * Decrypts a message using the given private key with RSA/None/OAEPWithSHA-256AndMGF1Padding.
+     * Decrypts a message using the given private key with RSA/None/OAEPWithSHA-256AndMGF1Padding after decoding
+     * it from base64.
      * @param message The message to decrypt.
      * @param privateKey The private key to use.
      */
@@ -173,17 +167,74 @@ public class RSAUtils {
     }
 
     /**
-     * Decrypts a message using the given private key with the given algorithm.
+     * Decrypts bytes using the given private key with RSA/None/OAEPWithSHA-256AndMGF1Padding.
+     * @param bytes The bytes to decrypt.
+     * @param privateKey The private key to use.
+     */
+    public static byte[] decryptRSABytes(byte[] bytes, PrivateKey privateKey) {
+        return decryptRSABytesWithAlgorithm(ALGORITHM_TYPE, bytes, privateKey);
+    }
+
+    /**
+     * Encrypts a message using the given public key with the given algorithm and then encodes it to base64 for safe
+     * string conversion.
+     * @param algorithm The algorithm used to encrypt the message.
+     * @param message The message to encrypt.
+     * @param publicKey The public key to use.
+     */
+    public static String encryptToRSAWithAlgorithm(String algorithm, String message, PublicKey publicKey) {
+        if (isBlankOrNull(message))
+            return null;
+        byte[] encryptedMessageBytes = encryptBytesToRSAWithAlgorithm(algorithm,
+                message.getBytes(StandardCharsets.UTF_8), publicKey);
+        return Base64.getEncoder().encodeToString(encryptedMessageBytes);
+
+    }
+
+    /**
+     * Encrypts bytes using the given public key with the given algorithm.
+     * @param algorithm The algorithm used to encrypt the message.
+     * @param bytes The bytes to encrypt.
+     * @param publicKey The public key to use.
+     */
+    public static byte[] encryptBytesToRSAWithAlgorithm(String algorithm, byte[] bytes, PublicKey publicKey) {
+        if (bytes == null || bytes.length == 0)
+            return new byte[0];
+        try {
+            Cipher encryptCipher = Cipher.getInstance(algorithm);
+            encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            return encryptCipher.doFinal(bytes);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
+                 IllegalBlockSizeException | BadPaddingException ex) {
+            throw new CryptoException(ERROR_CODE, ex);
+        }
+    }
+
+    /**
+     * Decrypts a message using the given private key with the given algorithm after decoding it from base64.
      * @param message The message to decrypt.
      * @param privateKey The private key to use.
      */
     public static String decryptRSAWithAlgorithm(String algorithm, String message, PrivateKey privateKey) {
+        if (isBlankOrNull(message))
+            return null;
+        byte[] decodedMessage = Base64.getDecoder().decode(message);
+        byte[] decryptedMessage = decryptRSABytesWithAlgorithm(algorithm, decodedMessage, privateKey);
+        return new String(decryptedMessage);
+    }
+
+    /**
+     * Decrypts bytes using the given private key with the given algorithm.
+     * @param bytes The bytes to decrypt.
+     * @param privateKey The private key to use.
+     */
+    public static byte[] decryptRSABytesWithAlgorithm(String algorithm, byte[] bytes, PrivateKey privateKey) {
+        if (bytes == null || bytes.length == 0)
+            return new byte[0];
         try {
             Cipher encryptCipher = Cipher.getInstance(algorithm);
             encryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
-            byte[] decodedMessage = Base64.getDecoder().decode(message);
-            byte[] decryptedMessage = encryptCipher.doFinal(decodedMessage);
-            return new String(decryptedMessage);
+            return encryptCipher.doFinal(bytes);
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException |
                  IllegalBlockSizeException | BadPaddingException ex) {
             throw new CryptoException(ERROR_CODE, ex);

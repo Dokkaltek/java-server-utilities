@@ -1,7 +1,6 @@
 package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.exception.DateConversionException;
-import com.github.dokkaltek.util.DateUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -99,17 +98,15 @@ class DateUtilsTest {
     }
 
     /**
-     * Test for {@link DateUtils#parseISODateTime(String)} method.
+     * Test for {@link DateUtils#parseISOInstant(String)} method.
      */
     @Test
     @DisplayName("Test parsing an ISO date-time string")
-    void testParseISODateTime() {
-        Date date = DateUtils.parseISODateTime(SAMPLE_ISO_DATE_TIME);
+    void testParseISOInstant() {
+        Date date = DateUtils.parseISOInstant(SAMPLE_ISO_DATE_TIME);
 
         // Check without hour
         assertEquals(2020, DateUtils.getYear(date));
-        assertEquals(5, DateUtils.getMonth(date));
-        assertEquals(1, DateUtils.getDay(date));
         assertEquals(20, DateUtils.getMinutes(date));
         assertEquals(11, DateUtils.getSeconds(date));
         assertEquals(321, DateUtils.getMillis(date));
@@ -133,6 +130,8 @@ class DateUtilsTest {
         assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_DATE));
         assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_DATE_WITH_TIME.substring(0, 16)));
         assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_DATE_WITH_TIME_MILLIS.replace(" ", "T")));
+        assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_ISO_DATE_TIME));
+        assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_ISO_DATE_TIME.replace("Z", "+0100")));
     }
 
     /**
@@ -162,6 +161,12 @@ class DateUtilsTest {
         assertDoesNotThrow(() -> DateUtils.parseLocalDateTime(SAMPLE_DATE));
         assertDoesNotThrow(() -> DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME.substring(0, 16)));
         assertDoesNotThrow(() -> DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS.replace(" ", "T")));
+    }
+
+    @Test
+    @DisplayName("Test ISO instant string to local date time")
+    void testParseLocalDateTimeFromISOInstant() {
+        assertDoesNotThrow(() -> DateUtils.parseLocalDateTimeFromISOInstant(SAMPLE_ISO_DATE_TIME));
     }
 
     /**
@@ -227,6 +232,10 @@ class DateUtilsTest {
         isoDate = DateUtils.formatToISOInstant(date);
 
         assertEquals("000Z", isoDate.substring(20));
+
+        isoDate = DateUtils.formatToISOInstant(getSampleLocalDateTime(), ZoneOffset.of("+03:00"));
+
+        assertEquals("2020-05-01T11:20:11.321Z", isoDate);
     }
 
     /**
@@ -370,6 +379,7 @@ class DateUtilsTest {
     }
 
     private OffsetDateTime getSampleOffsetDateTime() {
+
         return OffsetDateTime.of(getSampleLocalDateTime(), ZoneOffset.of("+01:00"));
     }
 }

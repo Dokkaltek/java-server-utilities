@@ -1,8 +1,10 @@
 package com.github.dokkaltek.samples;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.github.dokkaltek.util.StringUtils;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -19,6 +21,16 @@ public class SamplePojo extends SamplePojoParent implements Serializable {
 
     public SamplePojo() {
         super();
+    }
+
+    public SamplePojo(String name) {
+        super();
+        this.name = name;
+    }
+
+    public SamplePojo(List<String> nameFrags) {
+        super();
+        this.name = StringUtils.concatenate(nameFrags);
     }
 
     /**

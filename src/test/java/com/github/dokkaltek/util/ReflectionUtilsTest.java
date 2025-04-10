@@ -1,11 +1,12 @@
 package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.exception.ReflectionException;
+import com.github.dokkaltek.helper.WrapperList;
+import com.github.dokkaltek.samples.SampleAnnotation;
+import com.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import com.github.dokkaltek.samples.SampleAnnotation;
-import com.github.dokkaltek.samples.SamplePojo;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -172,12 +173,26 @@ class ReflectionUtilsTest {
      */
     @Test
     @DisplayName("Test invoking a static method")
-    void testInvokeStaticMethod() {
+     void testInvokeStaticMethod() {
         ReflectionUtils.invokeStaticMethod(SamplePojo.class, "setEmptyStaticValue", SAMPLE_VALUE);
         assertEquals(SAMPLE_VALUE, SamplePojo.emptyStaticValue);
         assertEquals(SAMPLE_VALUE, ReflectionUtils.invokeStaticMethod(SamplePojo.class, "getSampleStaticValue"));
         assertThrows(ReflectionException.class, () -> ReflectionUtils.invokeStaticMethod(SamplePojo.class,
                 "nonexistent_method"));
+    }
+
+    /**
+     * Test for {@link ReflectionUtils#invokeConstructor(Class, Object...)} method.
+     */
+    @Test
+    @DisplayName("Test invoking a constructor")
+    void testInvokeConstructor() {
+        assertDoesNotThrow(() -> ReflectionUtils.invokeConstructor(SamplePojo.class));
+        SamplePojo object = ReflectionUtils.invokeConstructor(SamplePojo.class, SAMPLE_VALUE);
+        assertEquals(SAMPLE_VALUE, object.getName());
+
+        SamplePojo diffObject = ReflectionUtils.invokeConstructor(SamplePojo.class, WrapperList.of(SAMPLE_VALUE));
+        assertEquals(SAMPLE_VALUE, diffObject.getName());
     }
 
     /**

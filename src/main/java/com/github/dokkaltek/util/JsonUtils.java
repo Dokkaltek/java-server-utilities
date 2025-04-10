@@ -32,8 +32,16 @@ public final class JsonUtils {
      * Changes the current {@link ObjectMapper} used for json operations for another one.
      * @param objectMapper The new object mapper to use for json operations.
      */
-    public static void replaceObjectMapper(ObjectMapper objectMapper) {
+    public static void setObjectMapperInstance(ObjectMapper objectMapper) {
         JsonUtils.objectMapper = objectMapper;
+    }
+
+    /**
+     * Gets the {@link ObjectMapper} instance used by this class.
+     * @return The {@link ObjectMapper} instance used by this class.
+     */
+    public static ObjectMapper getObjectMapperInstance() {
+        return objectMapper;
     }
 
     /**

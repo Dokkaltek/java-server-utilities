@@ -10,6 +10,7 @@ import org.mockito.MockedStatic;
 import javax.crypto.Cipher;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyFactory;
@@ -23,6 +24,7 @@ import static com.github.dokkaltek.util.RSAUtils.readPrivateKeyFromFile;
 import static com.github.dokkaltek.util.RSAUtils.readPublicKeyFromFile;
 import static com.github.dokkaltek.util.RSAUtils.writePrivateKeyToFile;
 import static com.github.dokkaltek.util.RSAUtils.writePublicKeyToFile;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -100,20 +102,39 @@ class RSAUtilsTest {
         }
     }
 
+    /**
+     * Tests {@link RSAUtils#encryptToRSA(String, PublicKey)} and
+     * {@link RSAUtils#decryptRSA(String, PrivateKey)} methods.
+     */
     @Test
     @DisplayName("Test encrypting and decrypting a string with RSA")
-    void testEncryptRSA() {
+    void testEncryptToRSA() {
         String sampleString = "Hello world!";
         KeyPair keyPair = RSAUtils.generateRSAKeyPair(RSAKeyBits.KEY_2048);
         PublicKey publicKey = keyPair.getPublic();
         PrivateKey privateKey = keyPair.getPrivate();
-        String encryptedMessage = RSAUtils.encryptRSA(sampleString, publicKey);
+        String encryptedMessage = RSAUtils.encryptToRSA(sampleString, publicKey);
         assertEquals(sampleString, RSAUtils.decryptRSA(encryptedMessage, privateKey));
 
         try (MockedStatic<Cipher> mockedStatic = mockStatic(Cipher.class)) {
             mockedStatic.when(() -> Cipher.getInstance(anyString())).thenThrow(NoSuchAlgorithmException.class);
-            assertThrows(CryptoException.class, () -> RSAUtils.encryptRSA(sampleString, publicKey));
+            assertThrows(CryptoException.class, () -> RSAUtils.encryptToRSA(sampleString, publicKey));
             assertThrows(CryptoException.class, () -> RSAUtils.decryptRSA(encryptedMessage, privateKey));
         }
+    }
+
+    /**
+     * Tests {@link RSAUtils#encryptBytesToRSA(byte[], PublicKey)} and
+     * {@link RSAUtils#decryptRSABytes(byte[], PrivateKey)} methods.
+     */
+    @Test
+    @DisplayName("Test encrypting and decrypting bytes with RSA")
+    void testEncryptBytesToRSA() {
+        byte[] sampleBytes = "Hello world!".getBytes(StandardCharsets.UTF_8);
+        KeyPair keyPair = RSAUtils.generateRSAKeyPair(RSAKeyBits.KEY_2048);
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+        byte[] encryptedBytes = RSAUtils.encryptBytesToRSA(sampleBytes, publicKey);
+        assertArrayEquals(sampleBytes, RSAUtils.decryptRSABytes(encryptedBytes, privateKey));
     }
 }

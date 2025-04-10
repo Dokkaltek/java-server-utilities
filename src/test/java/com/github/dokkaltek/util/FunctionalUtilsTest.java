@@ -1,9 +1,9 @@
 package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.exception.ResultNotFoundException;
+import com.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import com.github.dokkaltek.samples.SamplePojo;
 
 import java.util.function.Supplier;
 

@@ -21,6 +21,8 @@ import java.security.NoSuchAlgorithmException;
 
 import static com.github.dokkaltek.util.AESUtils.decryptAESFileWithCBC;
 import static com.github.dokkaltek.util.AESUtils.decryptAESFileWithGCM;
+import static com.github.dokkaltek.util.AESUtils.encryptBytesToAESWithCBC;
+import static com.github.dokkaltek.util.AESUtils.encryptBytesToAESWithGCM;
 import static com.github.dokkaltek.util.AESUtils.encryptFileToAESWithCBC;
 import static com.github.dokkaltek.util.AESUtils.encryptFileToAESWithGCM;
 import static com.github.dokkaltek.util.AESUtils.encryptObjectToAESWithCBC;
@@ -136,12 +138,40 @@ class AESUtilsTest {
      * {@link AESUtils#decryptAESWithGCM(String, SecretKey, GCMParameterSpec)} methods.
      */
     @Test
-    @DisplayName("Test encrypting and decrypting a string with CBC")
+    @DisplayName("Test encrypting and decrypting a string with GCM")
     void testEncryptAndDecryptWithGCM() {
         SecretKey key = generateAESKey(AESKeyBits.KEY_128);
         GCMParameterSpec iv = generateIvForGCM();
         String encryptedMessage = encryptToAESWithGCM(SAMPLE_MESSAGE, key, iv);
         assertEquals(SAMPLE_MESSAGE, AESUtils.decryptAESWithGCM(encryptedMessage, key, iv));
+    }
+
+    /**
+     * Tests {@link AESUtils#encryptBytesToAESWithCBC(byte[], SecretKey, IvParameterSpec)} and
+     * {@link AESUtils#decryptAESBytesWithCBC(byte[], SecretKey, IvParameterSpec)} methods.
+     */
+    @Test
+    @DisplayName("Test encrypting and decrypting bytes with CBC")
+    void testEncryptAndDecryptBytesWithCBC() {
+        SecretKey key = generateAESKey(AESKeyBits.KEY_128);
+        IvParameterSpec iv = generateIv();
+        byte[] encryptedbytes = encryptBytesToAESWithCBC(SAMPLE_MESSAGE.getBytes(StandardCharsets.UTF_8), key, iv);
+        assertArrayEquals(SAMPLE_MESSAGE.getBytes(StandardCharsets.UTF_8),
+                AESUtils.decryptAESBytesWithCBC(encryptedbytes, key, iv));
+    }
+
+    /**
+     * Tests {@link AESUtils#encryptBytesToAESWithGCM(byte[], SecretKey, GCMParameterSpec)} and
+     * {@link AESUtils#decryptAESBytesWithGCM(byte[], SecretKey, GCMParameterSpec)} methods.
+     */
+    @Test
+    @DisplayName("Test encrypting and decrypting bytes with GCM")
+    void testEncryptAndDecryptBytesWithGCM() {
+        SecretKey key = generateAESKey(AESKeyBits.KEY_128);
+        GCMParameterSpec iv = generateIvForGCM();
+        byte[] encryptedBytes = encryptBytesToAESWithGCM(SAMPLE_MESSAGE.getBytes(StandardCharsets.UTF_8), key, iv);
+        assertArrayEquals(SAMPLE_MESSAGE.getBytes(StandardCharsets.UTF_8),
+                AESUtils.decryptAESBytesWithGCM(encryptedBytes, key, iv));
     }
 
     /**

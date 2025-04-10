@@ -133,25 +133,47 @@ public class AESUtils {
     }
 
     /**
-     * Encrypts the given input using AES-CBC with PKCS5 padding.
+     * Encrypts the given input using AES-CBC with PKCS5 padding and encodes it to base64 for safe string conversion.
      * @param input The input to encrypt.
      * @param key The key to use.
      * @param iv The initialization vector to use.
      * @return The encrypted input.
      */
     public static String encryptToAESWithCBC(String input, SecretKey key, IvParameterSpec iv) {
-        return encryptToAES(CBC_ALGORITHM_NAME, input, key, iv);
+        return encryptToAESWithAlgorithm(CBC_ALGORITHM_NAME, input, key, iv);
     }
 
     /**
-     * Encrypts the given input using AES-GCM.
+     * Encrypts the given input using AES-CBC with PKCS5 padding.
+     * @param input The input to encrypt.
+     * @param key The key to use.
+     * @param iv The initialization vector to use.
+     * @return The encrypted input.
+     */
+    public static byte[] encryptBytesToAESWithCBC(byte[] input, SecretKey key, IvParameterSpec iv) {
+        return encryptBytesToAESWithAlgorithm(CBC_ALGORITHM_NAME, input, key, iv);
+    }
+
+    /**
+     * Encrypts the given input using AES-GCM and encodes it to base64 for safe string conversion.
      * @param input The input to encrypt.
      * @param key The key to use.
      * @param iv The initialization vector to use.
      * @return The encrypted input.
      */
     public static String encryptToAESWithGCM(String input, SecretKey key, GCMParameterSpec iv) {
-        return encryptToAES(GCM_ALGORITHM_NAME, input, key, iv);
+        return encryptToAESWithAlgorithm(GCM_ALGORITHM_NAME, input, key, iv);
+    }
+
+    /**
+     * Encrypts the given input using AES-CBC with PKCS5 padding.
+     * @param input The input to encrypt.
+     * @param key The key to use.
+     * @param iv The initialization vector to use.
+     * @return The encrypted input.
+     */
+    public static byte[] encryptBytesToAESWithGCM(byte[] input, SecretKey key, GCMParameterSpec iv) {
+        return encryptBytesToAESWithAlgorithm(GCM_ALGORITHM_NAME, input, key, iv);
     }
 
     /**
@@ -162,7 +184,7 @@ public class AESUtils {
      * @param iv The initialization vector to use.
      */
     public static void encryptFileToAESWithCBC(File inputFile, File outputFile, SecretKey key, IvParameterSpec iv) {
-        encryptFileToAES(CBC_ALGORITHM_NAME, key, iv, inputFile, outputFile);
+        encryptFileToAESWithAlgorithm(CBC_ALGORITHM_NAME, key, iv, inputFile, outputFile);
     }
 
     /**
@@ -173,7 +195,7 @@ public class AESUtils {
      * @param iv The initialization vector to use.
      */
     public static void encryptFileToAESWithGCM(File inputFile, File outputFile, SecretKey key, GCMParameterSpec iv) {
-        encryptFileToAES(GCM_ALGORITHM_NAME, key, iv, inputFile, outputFile);
+        encryptFileToAESWithAlgorithm(GCM_ALGORITHM_NAME, key, iv, inputFile, outputFile);
     }
 
     /**
@@ -184,7 +206,7 @@ public class AESUtils {
      * @return The encrypted input.
      */
     public static SealedObject encryptObjectToAESWithCBC(Serializable input, SecretKey key, IvParameterSpec iv) {
-        return encryptObjectToAES(CBC_ALGORITHM_NAME, input, key, iv);
+        return encryptObjectToAESWithAlgorithm(CBC_ALGORITHM_NAME, input, key, iv);
     }
 
     /**
@@ -195,29 +217,51 @@ public class AESUtils {
      * @return The encrypted input.
      */
     public static SealedObject encryptObjectToAESWithGCM(Serializable input, SecretKey key, GCMParameterSpec iv) {
-        return encryptObjectToAES(GCM_ALGORITHM_NAME, input, key, iv);
+        return encryptObjectToAESWithAlgorithm(GCM_ALGORITHM_NAME, input, key, iv);
     }
 
     /**
-     * Encrypts the given input using AES-CBC with PKCS5 padding.
+     * Decrypts the given input using AES-CBC with PKCS5 padding decoding it from base64 first.
      * @param input The input to encrypt.
      * @param key The key to use.
      * @param iv The initialization vector to use.
      * @return The encrypted input.
      */
     public static String decryptAESWithCBC(String input, SecretKey key, IvParameterSpec iv) {
-        return decryptAES(CBC_ALGORITHM_NAME, input, key, iv);
+        return decryptAESWithAlgorithm(CBC_ALGORITHM_NAME, input, key, iv);
     }
 
     /**
-     * Encrypts the given input using AES-GCM.
-     * @param input The input to encrypt.
+     * Decrypts the given input using AES-CBC with PKCS5 padding.
+     * @param input The input to decrypt.
+     * @param key The key to use.
+     * @param iv The initialization vector to use.
+     * @return The encrypted input.
+     */
+    public static byte[] decryptAESBytesWithCBC(byte[] input, SecretKey key, IvParameterSpec iv) {
+        return decryptAESBytesWithAlgorithm(CBC_ALGORITHM_NAME, input, key, iv);
+    }
+
+    /**
+     * Decrypts the given input using AES-GCM decoding it from base64 first.
+     * @param input The input to decrypt.
      * @param key The key to use.
      * @param iv The initialization vector to use.
      * @return The encrypted input.
      */
     public static String decryptAESWithGCM(String input, SecretKey key, GCMParameterSpec iv) {
-        return decryptAES(GCM_ALGORITHM_NAME, input, key, iv);
+        return decryptAESWithAlgorithm(GCM_ALGORITHM_NAME, input, key, iv);
+    }
+
+    /**
+     * Decrypts the given input using AES-GCM with PKCS5 padding.
+     * @param input The input to decrypt.
+     * @param key The key to use.
+     * @param iv The initialization vector to use.
+     * @return The encrypted input.
+     */
+    public static byte[] decryptAESBytesWithGCM(byte[] input, SecretKey key, GCMParameterSpec iv) {
+        return decryptAESBytesWithAlgorithm(GCM_ALGORITHM_NAME, input, key, iv);
     }
 
     /**
@@ -228,7 +272,7 @@ public class AESUtils {
      * @param iv The initialization vector to use.
      */
     public static void decryptAESFileWithCBC(File inputFile, File outputFile, SecretKey key, IvParameterSpec iv) {
-        decryptAESFile(CBC_ALGORITHM_NAME, key, iv, inputFile, outputFile);
+        decryptAESFileWithAlgorithm(CBC_ALGORITHM_NAME, key, iv, inputFile, outputFile);
     }
 
     /**
@@ -239,7 +283,7 @@ public class AESUtils {
      * @param iv The initialization vector to use.
      */
     public static void decryptAESFileWithGCM(File inputFile, File outputFile, SecretKey key, GCMParameterSpec iv) {
-        decryptAESFile(GCM_ALGORITHM_NAME, key, iv, inputFile, outputFile);
+        decryptAESFileWithAlgorithm(GCM_ALGORITHM_NAME, key, iv, inputFile, outputFile);
     }
 
     /**
@@ -250,7 +294,7 @@ public class AESUtils {
      * @return The decrypted input.
      */
     public static Serializable decryptAESObjectWithCBC(SealedObject input, SecretKey key, IvParameterSpec iv) {
-        return decryptAESObject(CBC_ALGORITHM_NAME, input, key, iv);
+        return decryptAESObjectWithAlgorithm(CBC_ALGORITHM_NAME, input, key, iv);
     }
 
     /**
@@ -261,7 +305,22 @@ public class AESUtils {
      * @return The decrypted input.
      */
     public static Serializable decryptAESObjectWithGCM(SealedObject input, SecretKey key, GCMParameterSpec iv) {
-        return decryptAESObject(GCM_ALGORITHM_NAME, input, key, iv);
+        return decryptAESObjectWithAlgorithm(GCM_ALGORITHM_NAME, input, key, iv);
+    }
+
+    /**
+     * Encrypts the given input using AES and returns it in base64 for a safe string conversion.
+     * @param algorithm The algorithm to use.
+     * @param input The input to encrypt.
+     * @param key The key to use.
+     * @param iv The initialization vector to use.
+     * @return The encrypted input.
+     */
+    public static String encryptToAESWithAlgorithm(String algorithm, String input, SecretKey key, AlgorithmParameterSpec iv) {
+        if (algorithm == null)
+            return null;
+        byte[] cipherText = encryptBytesToAESWithAlgorithm(algorithm, input.getBytes(StandardCharsets.UTF_8), key, iv);
+        return Base64.getEncoder().encodeToString(cipherText);
     }
 
     /**
@@ -272,14 +331,13 @@ public class AESUtils {
      * @param iv The initialization vector to use.
      * @return The encrypted input.
      */
-    public static String encryptToAES(String algorithm, String input, SecretKey key, AlgorithmParameterSpec iv) {
+    public static byte[] encryptBytesToAESWithAlgorithm(String algorithm, byte[] input, SecretKey key, AlgorithmParameterSpec iv) {
         if (algorithm == null)
-            return null;
+            return new byte[0];
         try {
             Cipher cipher = Cipher.getInstance(algorithm);
             cipher.init(Cipher.ENCRYPT_MODE, key, iv);
-            byte[] cipherText = cipher.doFinal(input.getBytes());
-            return Base64.getEncoder().encodeToString(cipherText);
+            return cipher.doFinal(input);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
                  InvalidAlgorithmParameterException | InvalidKeyException ex) {
             throw new CryptoException(ERROR_CODE, ex);
@@ -294,8 +352,8 @@ public class AESUtils {
      * @param inputFile The input file to encrypt.
      * @param outputFile The output file to write the encrypted file to.
      */
-    public static void encryptFileToAES(String algorithm, SecretKey key, AlgorithmParameterSpec iv,
-                                   File inputFile, File outputFile) {
+    public static void encryptFileToAESWithAlgorithm(String algorithm, SecretKey key, AlgorithmParameterSpec iv,
+                                                     File inputFile, File outputFile) {
         if (inputFile == null || outputFile == null)
             throw new NullPointerException("Input file and output file to encrypt must not be null");
 
@@ -332,8 +390,8 @@ public class AESUtils {
      * @param iv The initialization vector to use.
      * @return The encrypted object.
      */
-    public static SealedObject encryptObjectToAES(String algorithm, Serializable object,
-                                             SecretKey key, AlgorithmParameterSpec iv) {
+    public static SealedObject encryptObjectToAESWithAlgorithm(String algorithm, Serializable object,
+                                                               SecretKey key, AlgorithmParameterSpec iv) {
         if (object == null)
             return null;
         try {
@@ -349,6 +407,22 @@ public class AESUtils {
     }
 
     /**
+     * Decrypts the given input using AES after decoding it from base64 first.
+     * @param algorithm The algorithm to use.
+     * @param cipherText The cipher text to decrypt.
+     * @param key The key to use.
+     * @param iv The initialization vector to use.
+     * @return The decrypted input.
+     */
+    public static String decryptAESWithAlgorithm(String algorithm, String cipherText, SecretKey key,
+                                                 AlgorithmParameterSpec iv) {
+        if (isBlankOrNull(cipherText))
+            return null;
+        byte[] plainText = decryptAESBytesWithAlgorithm(algorithm, Base64.getDecoder().decode(cipherText), key, iv);
+        return new String(plainText);
+    }
+
+    /**
      * Decrypts the given input using AES.
      * @param algorithm The algorithm to use.
      * @param cipherText The cipher text to decrypt.
@@ -356,15 +430,14 @@ public class AESUtils {
      * @param iv The initialization vector to use.
      * @return The decrypted input.
      */
-    public static String decryptAES(String algorithm, String cipherText, SecretKey key,
-                                    AlgorithmParameterSpec iv) {
-        if (isBlankOrNull(algorithm))
-            return algorithm;
+    public static byte[] decryptAESBytesWithAlgorithm(String algorithm, byte[] cipherText, SecretKey key,
+                                                      AlgorithmParameterSpec iv) {
+        if (cipherText == null || cipherText.length == 0)
+            return new byte[0];
         try {
             Cipher cipher = Cipher.getInstance(algorithm);
             cipher.init(Cipher.DECRYPT_MODE, key, iv);
-            byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(cipherText));
-            return new String(plainText);
+            return cipher.doFinal(cipherText);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException |
                  InvalidAlgorithmParameterException | InvalidKeyException ex) {
             throw new CryptoException(ERROR_CODE, ex);
@@ -379,8 +452,8 @@ public class AESUtils {
      * @param inputFile The input file to decrypt.
      * @param outputFile The output file to write the decrypted file to.
      */
-    public static void decryptAESFile(String algorithm, SecretKey key, AlgorithmParameterSpec iv,
-                                        File inputFile, File outputFile) {
+    public static void decryptAESFileWithAlgorithm(String algorithm, SecretKey key, AlgorithmParameterSpec iv,
+                                                   File inputFile, File outputFile) {
         if (inputFile == null || outputFile == null)
             throw new NullPointerException("Input file and output file to decrypt must not be null");
 
@@ -417,8 +490,8 @@ public class AESUtils {
      * @param iv The initialization vector to use.
      * @return The decrypted object.
      */
-    public static Serializable decryptAESObject(String algorithm, SealedObject sealedObject,
-                                                  SecretKey key, AlgorithmParameterSpec iv) {
+    public static Serializable decryptAESObjectWithAlgorithm(String algorithm, SealedObject sealedObject,
+                                                             SecretKey key, AlgorithmParameterSpec iv) {
         if (sealedObject == null)
             return null;
 

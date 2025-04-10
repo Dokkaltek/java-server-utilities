@@ -2,7 +2,6 @@ package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.exception.InvalidUriException;
 import com.github.dokkaltek.helper.WrapperList;
-import com.github.dokkaltek.util.UriUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -136,33 +135,33 @@ class UriUtilsTest {
     }
 
     /**
-     * Test for {@link UriUtils#sanitizeUriEnd(String)} method.
+     * Test for {@link UriUtils#sanitizePathEnd(String)} method.
      */
     @Test
     @DisplayName("Test sanitizing the end of a URI")
-    void testSanitizeUriEnd() {
-        assertEquals(SAMPLE_URL_NO_PATH, UriUtils.sanitizeUriEnd(SAMPLE_URL_NO_PATH + "/"));
-        assertEquals(SAMPLE_URL_NO_PATH, UriUtils.sanitizeUriEnd(SAMPLE_URL_NO_PATH + "\\"));
-        assertEquals(SAMPLE_PATH, UriUtils.sanitizeUriEnd(SAMPLE_PATH_WITH_FORWARD_SLASH));
-        assertEquals("", UriUtils.sanitizeUriEnd(null));
-        assertEquals("", UriUtils.sanitizeUriEnd(BLANK_STRING));
-        assertThrows(InvalidUriException.class, () -> UriUtils.sanitizeUriEnd(INVALID_URI));
+    void testSanitizePathEnd() {
+        assertEquals(SAMPLE_URL_NO_PATH, UriUtils.sanitizePathEnd(SAMPLE_URL_NO_PATH + "/"));
+        assertEquals(SAMPLE_URL_NO_PATH, UriUtils.sanitizePathEnd(SAMPLE_URL_NO_PATH + "\\"));
+        assertEquals(SAMPLE_PATH, UriUtils.sanitizePathEnd(SAMPLE_PATH_WITH_FORWARD_SLASH));
+        assertEquals("", UriUtils.sanitizePathEnd(null));
+        assertEquals("", UriUtils.sanitizePathEnd(BLANK_STRING));
+        assertThrows(InvalidUriException.class, () -> UriUtils.sanitizePathEnd(INVALID_URI));
     }
 
     /**
-     * Test for {@link UriUtils#sanitizeUriStart(String)} method.
+     * Test for {@link UriUtils#sanitizePathStart(String)} method.
      */
     @Test
     @DisplayName("Test sanitizing the start of a URI")
-    void testSanitizeUriStart() {
-        assertEquals("/" + SAMPLE_PATH, UriUtils.sanitizeUriStart(SAMPLE_PATH));
-        assertEquals("/" + SAMPLE_PATH, UriUtils.sanitizeUriStart("/" + SAMPLE_PATH));
-        assertEquals("/" + SAMPLE_PATH, UriUtils.sanitizeUriStart("\\" + SAMPLE_PATH));
+    void testSanitizePathStart() {
+        assertEquals("/" + SAMPLE_PATH, UriUtils.sanitizePathStart(SAMPLE_PATH));
+        assertEquals("/" + SAMPLE_PATH, UriUtils.sanitizePathStart("/" + SAMPLE_PATH));
+        assertEquals("/" + SAMPLE_PATH, UriUtils.sanitizePathStart("\\" + SAMPLE_PATH));
         assertEquals("/" + SAMPLE_PATH,
-                UriUtils.sanitizeUriStart(SAMPLE_PATH_WITH_FORWARD_SLASH));
-        assertEquals("", UriUtils.sanitizeUriStart(null));
-        assertEquals("", UriUtils.sanitizeUriStart(BLANK_STRING));
-        assertThrows(InvalidUriException.class, () -> UriUtils.sanitizeUriStart(INVALID_URI));
+                UriUtils.sanitizePathStart(SAMPLE_PATH_WITH_FORWARD_SLASH));
+        assertEquals("", UriUtils.sanitizePathStart(null));
+        assertEquals("", UriUtils.sanitizePathStart(BLANK_STRING));
+        assertThrows(InvalidUriException.class, () -> UriUtils.sanitizePathStart(INVALID_URI));
     }
 
     /**
@@ -305,9 +304,10 @@ class UriUtilsTest {
         queryParamsMap.put("some", "param");
         queryParamsMap.put("goes", "here");
         queryParamsMap.put("sample", null);
-        assertTrue(UriUtils.setQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap).contains("some=param"));
-        assertTrue(UriUtils.setQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap).contains("goes=here"));
-        assertTrue(UriUtils.setQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap).contains("sample"));
+        String newUrl = UriUtils.setQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap);
+        assertTrue(newUrl.contains("some=param"));
+        assertTrue(newUrl.contains("goes=here"));
+        assertTrue(newUrl.contains("sample"));
     }
 
     /**
@@ -319,11 +319,12 @@ class UriUtilsTest {
         queryParamsMap.put("some", WrapperList.of("param", "param2"));
         queryParamsMap.put("goes", WrapperList.of("here", "and_here"));
         queryParamsMap.put("sample", null);
-        assertTrue(UriUtils.setMultiValueQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap).contains("some=param"));
-        assertTrue(UriUtils.setMultiValueQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap).contains("some=param2"));
-        assertTrue(UriUtils.setMultiValueQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap).contains("goes=here"));
-        assertTrue(UriUtils.setMultiValueQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap).contains("goes=and_here"));
-        assertTrue(UriUtils.setMultiValueQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap).contains("sample"));
+        String newUrl = UriUtils.setMultiValueQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap);
+        assertTrue(newUrl.contains("some=param"));
+        assertTrue(newUrl.contains("some=param2"));
+        assertTrue(newUrl.contains("goes=here"));
+        assertTrue(newUrl.contains("goes=and_here"));
+        assertTrue(newUrl.contains("sample"));
     }
 
     /**

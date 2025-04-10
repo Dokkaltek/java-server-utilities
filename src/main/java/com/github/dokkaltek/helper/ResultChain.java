@@ -65,9 +65,9 @@ public class ResultChain {
      * @param mapper The mapping operation to perform.
      * @return The current ChainFunction.
      */
-    public <T> ResultChain map(Function<? super Object, ? extends T> mapper) {
+    public <T, R> ResultChain map(Function<? super T, ? extends R> mapper) {
         for (int i = 0; i < this.results.size(); i++) {
-            results.set(i, mapper.apply(results.get(i)));
+            results.set(i, mapper.apply((T) results.get(i)));
         }
         return this;
     }
@@ -77,8 +77,8 @@ public class ResultChain {
      * @param mapper The mapping operation to perform.
      * @return The current ChainFunction.
      */
-    public <T> ResultChain mapLast(Function<? super Object, ? extends T> mapper) {
-        results.set(results.lastIndex(), mapper.apply(results.last()));
+    public <T, R> ResultChain mapLast(Function<? super T, ? extends R> mapper) {
+        results.set(results.lastIndex(), mapper.apply((T) results.last()));
         return this;
     }
 
@@ -87,8 +87,8 @@ public class ResultChain {
      * @param mapper The mapping operation to perform.
      * @return The current ChainFunction.
      */
-    public <T> ResultChain mapFirst(Function<? super Object, ? extends T> mapper) {
-        results.set(0, mapper.apply(results.first()));
+    public <T, R> ResultChain mapFirst(Function<? super T, ? extends R> mapper) {
+        results.set(0, mapper.apply((T) results.first()));
         return this;
     }
 
@@ -98,8 +98,8 @@ public class ResultChain {
      * @param mapper The mapping operation to perform.
      * @return The current ChainFunction.
      */
-    public <T> ResultChain mapResultAtIndex(int index, Function<? super Object, ? extends T> mapper) {
-        results.set(index, mapper.apply(results.get(index)));
+    public <T, R> ResultChain mapResultAtIndex(int index, Function<? super T, ? extends R> mapper) {
+        results.set(index, mapper.apply((T) results.get(index)));
         return this;
     }
 
@@ -108,9 +108,9 @@ public class ResultChain {
      * @param function The function to perform.
      * @return The current ChainFunction.
      */
-    public ResultChain forEach(Function<? super Object, Void> function) {
+    public <T> ResultChain forEach(Function<? super T, Void> function) {
         for (Object result : this.results) {
-            function.apply(result);
+            function.apply((T) result);
         }
         return this;
     }
@@ -120,8 +120,8 @@ public class ResultChain {
      * @param function The function to perform with the last result.
      * @return The current ChainFunction.
      */
-    public ResultChain withLastRun(Function<? super Object, Void> function) {
-        function.apply(results.last());
+    public <T> ResultChain withLastRun(Function<? super T, Void> function) {
+        function.apply((T) results.last());
         return this;
     }
 
@@ -131,8 +131,8 @@ public class ResultChain {
      * @param function The operation to perform using the result at the given index as input.
      * @return The current ChainFunction.
      */
-    public ResultChain withResultAtIndexRun(int index, Function<? super Object, Void> function) {
-        function.apply(results.get(index));
+    public <T> ResultChain withResultAtIndexRun(int index, Function<? super T, Void> function) {
+        function.apply((T) results.get(index));
         return this;
     }
 
@@ -141,8 +141,8 @@ public class ResultChain {
      * @param function The operation to perform using the last entry as input.
      * @return The current ChainFunction.
      */
-    public <T> ResultChain withLastSupply(Function<? super Object, ? extends T> function) {
-        results.add(function.apply(results.last()));
+    public <T, R> ResultChain withLastSupply(Function<? super T, ? extends R> function) {
+        results.add(function.apply((T) results.last()));
         return this;
     }
 
@@ -153,8 +153,8 @@ public class ResultChain {
      * @return The current ChainFunction.
      * @param <T> The parametrized type of the result.
      */
-    public <T> ResultChain withResultAtIndexSupply(int index, Function<? super Object, ? extends T> function) {
-        results.add(function.apply(results.get(index)));
+    public <T, R> ResultChain withResultAtIndexSupply(int index, Function<? super T, ? extends R> function) {
+        results.add(function.apply((T) results.get(index)));
         return this;
     }
 

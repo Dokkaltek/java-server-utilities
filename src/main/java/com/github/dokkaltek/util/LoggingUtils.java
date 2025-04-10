@@ -27,6 +27,11 @@ public class LoggingUtils {
         if (object == null) {
             return null;
         }
+
+        if (object instanceof String) {
+            return Encode.forJava((String) object);
+        }
+
         return Encode.forJava(object.toString());
     }
 

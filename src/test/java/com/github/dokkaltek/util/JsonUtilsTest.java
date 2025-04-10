@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.github.dokkaltek.exception.JSONException;
+import com.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import com.github.dokkaltek.samples.SamplePojo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,7 @@ import static com.github.dokkaltek.util.JsonUtils.convertObjectToBytes;
 import static com.github.dokkaltek.util.JsonUtils.convertToJSONString;
 import static com.github.dokkaltek.util.JsonUtils.convertToJSONStringOrElse;
 import static com.github.dokkaltek.util.JsonUtils.parseByteArray;
-import static com.github.dokkaltek.util.JsonUtils.replaceObjectMapper;
+import static com.github.dokkaltek.util.JsonUtils.setObjectMapperInstance;
 import static com.github.dokkaltek.util.ReflectionUtils.getStaticField;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,16 +44,27 @@ class JsonUtilsTest {
 
 
     /**
-     * Test for {@link JsonUtils#replaceObjectMapper(ObjectMapper)} method.
+     * Test for {@link JsonUtils#setObjectMapperInstance(ObjectMapper)} method.
      */
     @Test
     @DisplayName("Test replacing the object mapper")
-    void testReplaceObjectMapper() {
+    void testSetObjectMapperInstance() {
         ObjectMapper defaultMapper = getStaticField(JsonUtils.class, "objectMapper");
         ObjectMapper newMapper = new ObjectMapper();
-        replaceObjectMapper(newMapper);
+        setObjectMapperInstance(newMapper);
         assertNotEquals(defaultMapper, getStaticField(JsonUtils.class, "objectMapper"));
         assertEquals(newMapper, getStaticField(JsonUtils.class, "objectMapper"));
+    }
+
+    /**
+     * Test for {@link JsonUtils#getObjectMapperInstance()} method.
+     */
+    @Test
+    @DisplayName("Test replacing the object mapper")
+    void testGetObjectMapperInstance() {
+        ObjectMapper defaultMapper = getStaticField(JsonUtils.class, "objectMapper");
+        ObjectMapper instanceMapper = JsonUtils.getObjectMapperInstance();
+        assertEquals(defaultMapper, instanceMapper);
     }
 
     /**

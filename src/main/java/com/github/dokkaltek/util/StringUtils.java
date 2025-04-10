@@ -3,6 +3,7 @@ package com.github.dokkaltek.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,6 +78,15 @@ public final class StringUtils {
             }
         }
         return builder.toString();
+    }
+
+    /**
+     * Concatenates a list of strings into one. Similar to <code>String.join()</code>, but without a delimiter.
+     * @param strings The strings to concatenate. If null, an empty string will be returned.
+     * @return The concatenated string.
+     */
+    public static String concatenate(List<String> strings) {
+        return concatenate(strings.toArray(new String[0]));
     }
 
     /**

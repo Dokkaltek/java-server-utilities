@@ -5,9 +5,12 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * Utility class to get class related information.
@@ -66,7 +69,7 @@ public final class ReflectionUtils {
     }
 
     /**
-     * Gets a field from an object, or a default value if the field is null.
+     * Gets a field from an object, or a throw an error if the field is null.
      * @param object The object to get the field from.
      * @param fieldName The name of the field.
      * @return The value of the field.
@@ -280,6 +283,44 @@ public final class ReflectionUtils {
     }
 
     /**
+     * Invokes the constructor of a class.
+     * @param objClass The class to invoke the constructor on.
+     * @param constructorArgs The arguments to pass to the constructor if any.
+     * @return The object created by the constructor.
+     * @param <T> The type of the object.
+     */
+    public static <T> T invokeConstructor(Class<T> objClass, Object... constructorArgs) {
+        Constructor<T>[] constructors = (Constructor<T>[]) objClass.getDeclaredConstructors();
+        if (constructorArgs == null) {
+            constructorArgs = new Object[0];
+        }
+
+        Constructor<T> selectedConstructor = null;
+        for (Constructor<T> constructor : constructors) {
+            Type[] constructorDeclaredArgs = constructor.getGenericParameterTypes();
+            if (constructorDeclaredArgs.length == constructorArgs.length){
+                boolean argsMatch = checkConstructorArgsMatch(constructorDeclaredArgs, constructorArgs);
+                if (argsMatch) {
+                    selectedConstructor = constructor;
+                    break;
+                }
+            }
+        }
+
+        if (selectedConstructor == null) {
+            throw new ReflectionException("No constructor found with the given arguments for class " +
+                    objClass.getName());
+        }
+
+        selectedConstructor.setAccessible(true);
+        try {
+            return selectedConstructor.newInstance(constructorArgs);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new ReflectionException(e);
+        }
+    }
+
+    /**
      * Gets an annotation from a field.
      * @param objClass The Class where the field is in.
      * @param fieldName The name of the field.
@@ -307,5 +348,32 @@ public final class ReflectionUtils {
                                                                Class<A> annotationClass,
                                                                Class<?>... parameterTypes) {
         return getMethod(objClass, methodName, parameterTypes).getAnnotation(annotationClass);
+    }
+
+    /**
+     * Checks if the constructor arguments of a constructor match those being asked to be invoked.
+     * @param constructorDeclaredArgs The declared args of the constructor to check.
+     * @param constructorArgs The constructor args being invoked.
+     * @return True if the constructor arguments match, false otherwise.
+     */
+    private static boolean checkConstructorArgsMatch(Type[] constructorDeclaredArgs, Object[] constructorArgs) {
+        int matchingArgs = 0;
+        for (int i = 0; i < constructorDeclaredArgs.length; i++) {
+            boolean gotResult = false;
+            boolean isParametrizedType = constructorDeclaredArgs[i] instanceof ParameterizedType;
+            if (isParametrizedType) {
+                Class<?> constArgType = (Class<?>) ((ParameterizedType) constructorDeclaredArgs[i])
+                        .getRawType();
+                if (!constArgType.isAssignableFrom(constructorArgs[i].getClass()))
+                    gotResult = true;
+            } else if (!constructorDeclaredArgs[i].equals(constructorArgs[i].getClass()))
+                gotResult = true;
+
+            if (gotResult) {
+                break;
+            }
+            matchingArgs++;
+        }
+        return matchingArgs == constructorDeclaredArgs.length;
     }
 }

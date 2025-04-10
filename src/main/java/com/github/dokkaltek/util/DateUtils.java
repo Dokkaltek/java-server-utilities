@@ -46,6 +46,7 @@ public final class DateUtils {
      * <ul>
      *     <li>2020-05-01</li>
      *     <li>2020-05-01 05:20</li>
+     *     <li>2020-05-01 05:20:11</li>
      *     <li>2020-05-01 05:20:11.321</li>
      * </ul>
      *
@@ -91,7 +92,7 @@ public final class DateUtils {
      * @param date The ISO date-time string to parse.
      * @return The parsed {@link Date}.
      */
-    public static Date parseISODateTime(String date) {
+    public static Date parseISOInstant(String date) {
         return Date.from(Instant.parse(date));
     }
 
@@ -106,6 +107,8 @@ public final class DateUtils {
      *     <li>2020-05-01 05:20:11</li>
      *     <li>2020-05-01 05:20:11.321</li>
      *     <li>2020-05-01T05:20:11.321</li>
+     *     <li>2020-05-01T04:20:11.321Z</li>
+     *     <li>2020-05-01T04:20:11.321+0100</li>
      * </ul>
      * @param date The date string to convert to an {@link OffsetDateTime}.
      * @return The {@link OffsetDateTime} parsed from the string.
@@ -117,10 +120,19 @@ public final class DateUtils {
         }
 
         try {
-            // Add default offset to the string, like "+0100"
-            String offset = getDefaultOffset().toString().replace(":", "");
-            return OffsetDateTime.parse(date.trim() + " " + offset,
-                    DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER_PATTERN + " Z"));
+            if (date.contains("Z")) {
+                date = date.replace("Z", "");
+            }
+
+            // Add the offset if it didn't have one already
+            String offset = "";
+            if (date.length() > 10 && !date.substring(10).contains("+") &&
+                    !date.substring(10).contains("-")) {
+                offset = " " + getDefaultOffset().toString().replace(":", "");
+            }
+
+            return OffsetDateTime.parse(date.trim() + offset,
+                    DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER_PATTERN + "[ ]Z"));
         } catch (DateTimeException e) {
             throw new DateConversionException(e);
         }
@@ -151,6 +163,17 @@ public final class DateUtils {
         } catch (DateTimeException e) {
             throw new DateConversionException(e);
         }
+    }
+
+    /**
+     * Parses an ISO UTC date-time string in the format <code>yyyy-MM-ddTHH:mm:ss.SSSZ</code> to a
+     * {@link LocalDateTime}.
+     *
+     * @param date The ISO date-time string to parse.
+     * @return The parsed {@link Date}.
+     */
+    public static LocalDateTime parseLocalDateTimeFromISOInstant(String date) {
+        return LocalDateTime.ofInstant(Instant.parse(date), getDefaultOffset());
     }
 
     /**
@@ -212,7 +235,7 @@ public final class DateUtils {
      * @return The string representation of the date.
      */
     public static String formatToISOInstant(LocalDateTime localDateTime) {
-        return formatToISOInstantWithOffset(localDateTime, getDefaultOffset());
+        return formatToISOInstant(localDateTime, getDefaultOffset());
     }
 
     /**
@@ -222,7 +245,7 @@ public final class DateUtils {
      * @param offset The {@link ZoneOffset} to use.
      * @return The string representation of the date.
      */
-    public static String formatToISOInstantWithOffset(LocalDateTime localDateTime, ZoneOffset offset) {
+    public static String formatToISOInstant(LocalDateTime localDateTime, ZoneOffset offset) {
         String dateString = String.valueOf(localDateTime.toInstant(offset));
 
         // Make sure we have milliseconds, even if they are 0

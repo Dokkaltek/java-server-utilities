@@ -1,10 +1,11 @@
 package com.github.dokkaltek.util;
 
-import com.github.dokkaltek.util.LoggingUtils;
+import com.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static com.github.dokkaltek.constant.literal.SpecialChars.EMPTY_STRING;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -21,6 +22,7 @@ class LoggingUtilsTest {
     void testEncodeForLog() {
         assertEquals("\\n\\nsomething\\n", LoggingUtils.encodeForLog("\n\nsomething\n"));
         assertEquals(EMPTY_STRING, LoggingUtils.encodeForLog(EMPTY_STRING));
+        assertDoesNotThrow(() -> LoggingUtils.encodeForLog(new SamplePojo()));
         assertNull(LoggingUtils.encodeForLog(null));
     }
 

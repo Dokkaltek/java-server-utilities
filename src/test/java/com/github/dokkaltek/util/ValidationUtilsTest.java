@@ -9,7 +9,6 @@ import com.github.dokkaltek.exception.InvalidUUIDException;
 import com.github.dokkaltek.exception.InvalidUriException;
 import com.github.dokkaltek.exception.InvalidUrlException;
 import com.github.dokkaltek.exception.JSONException;
-import com.github.dokkaltek.util.ValidationUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
