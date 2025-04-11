@@ -47,25 +47,19 @@ public class WrapperList<T> extends ArrayList<T> {
 
     /**
      * Gets the first element of the list.
-     * @return The first element of the list if it has one, otherwise returns null.
+     * @return The first element of the list if it has one, otherwise throws an exception.
+     * @throws IndexOutOfBoundsException If the list is empty.
      */
     public T first() {
-        int size = size();
-        if (size == 0) {
-            return null;
-        }
         return get(0);
     }
 
     /**
      * Gets the last element of the list.
-     * @return The last element of the list if it has one, otherwise returns null.
+     * @return The last element of the list if it has one, otherwise throws an exception.
+     * @throws IndexOutOfBoundsException if the list is empty.
      */
     public T last() {
-        int size = size();
-        if (size == 0) {
-            return null;
-        }
         return get(size() - 1);
     }
 

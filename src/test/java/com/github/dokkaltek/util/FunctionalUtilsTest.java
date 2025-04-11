@@ -1,10 +1,15 @@
 package com.github.dokkaltek.util;
 
 import com.github.dokkaltek.exception.ResultNotFoundException;
+import com.github.dokkaltek.helper.ResultChain;
+import com.github.dokkaltek.helper.WrapperList;
 import com.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static com.github.dokkaltek.constant.literal.SpecialChars.EMPTY_STRING;
@@ -76,7 +81,8 @@ class FunctionalUtilsTest {
     @DisplayName("Test returning a function value when the input is null")
     void testIfNullThenSupply() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifNullThenSupply(null, () -> DEFAULT_VALUE).firstResult());
-        assertNull(FunctionalUtils.ifNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE);
+        assertThrows(IndexOutOfBoundsException.class, result::firstResult);
     }
 
     /**
@@ -86,7 +92,8 @@ class FunctionalUtilsTest {
     @DisplayName("Test returning a function value when the input is not null")
     void testIfNotNullThenSupply() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifNotNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE).firstResult());
-        assertNull(FunctionalUtils.ifNotNullThenSupply(null, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifNotNullThenSupply(null, () -> DEFAULT_VALUE);
+        assertThrows(IndexOutOfBoundsException.class, result::firstResult);
     }
 
     /**
@@ -138,7 +145,64 @@ class FunctionalUtilsTest {
     @DisplayName("Test returning a function value when the string is blank or null")
     void testIfBlankOrNullThenSupply() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifBlankOrNullThenSupply(null, () -> DEFAULT_VALUE).firstResult());
-        assertNull(FunctionalUtils.ifBlankOrNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifBlankOrNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE);
+        assertThrows(IndexOutOfBoundsException.class, result::firstResult);
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifEmptyOrNullThenReturn(Collection, Collection)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value when a collection is empty or null")
+    void testIfEmptyOrNullThenReturn() {
+        List<String> defaultList = WrapperList.of(DEFAULT_VALUE);
+        assertEquals(defaultList, FunctionalUtils.ifEmptyOrNullThenReturn(Collections.emptyList(), defaultList));
+        assertEquals(defaultList, FunctionalUtils.ifEmptyOrNullThenReturn(null, defaultList));
+        assertEquals(WrapperList.of(INITIAL_VALUE),
+                FunctionalUtils.ifEmptyOrNullThenReturn(WrapperList.of(INITIAL_VALUE), defaultList));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifEmptyOrNullThenThrow(Collection, RuntimeException)} method.
+     */
+    @Test
+    @DisplayName("Test throwing an exception when a collection is empty or null")
+    void testIfEmptyOrNullThenThrow() {
+        ResultNotFoundException exception = new ResultNotFoundException();
+        List<String> emptyList = Collections.emptyList();
+        assertThrows(ResultNotFoundException.class,
+                () -> FunctionalUtils.ifEmptyOrNullThenThrow(emptyList, exception));
+        assertThrows(ResultNotFoundException.class,
+                () -> FunctionalUtils.ifEmptyOrNullThenThrow(null, exception));
+        assertDoesNotThrow(() -> FunctionalUtils.ifEmptyOrNullThenThrow(WrapperList.of(INITIAL_VALUE), exception));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifEmptyOrNullThenRun(Collection, Runnable)} method.
+     */
+    @Test
+    @DisplayName("Test running a function when the collection is empty or null")
+    void testIfEmptyOrNullThenRun() {
+        SamplePojo input = new SamplePojo();
+        FunctionalUtils.ifEmptyOrNullThenRun(null, () -> input.setName(DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, input.getName());
+
+        FunctionalUtils.ifEmptyOrNullThenRun(WrapperList.of(INITIAL_VALUE), () -> input.setName(DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, input.getName());
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifEmptyOrNullThenSupply(Collection, Supplier)} method.
+     */
+    @Test
+    @DisplayName("Test returning a function value when the collection is empty or null")
+    void testIfEmptyOrNullThenSupply() {
+        List<String> initialList = WrapperList.of(INITIAL_VALUE);
+        List<String> emptyList = Collections.emptyList();
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifEmptyOrNullThenSupply(null, () -> DEFAULT_VALUE).firstResult());
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifEmptyOrNullThenSupply(emptyList, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifEmptyOrNullThenSupply(initialList, () -> DEFAULT_VALUE);
+        assertThrows(IndexOutOfBoundsException.class, result::firstResult);
     }
 
     /**
@@ -206,7 +270,8 @@ class FunctionalUtilsTest {
     @DisplayName("Test returning a function value when the condition is true")
     void testIfTrueThenSupply() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenSupply(true, () -> DEFAULT_VALUE).firstResult());
-        assertNull(FunctionalUtils.ifTrueThenSupply(false, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifTrueThenSupply(false, () -> DEFAULT_VALUE);
+        assertThrows(IndexOutOfBoundsException.class, result::firstResult);
     }
 
     /**
@@ -229,7 +294,9 @@ class FunctionalUtilsTest {
     @Test
     @DisplayName("Test returning a function value when the condition is false")
     void testIfFalseThenSupply() {
-        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenSupply(false, () -> DEFAULT_VALUE).firstResult());
-        assertNull(FunctionalUtils.ifFalseThenSupply(true, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifFalseThenSupply(true, () -> DEFAULT_VALUE);
+        assertThrows(IndexOutOfBoundsException.class, result::firstResult);
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenSupply(false,
+                () -> DEFAULT_VALUE).firstResult());
     }
 }
