@@ -40,7 +40,7 @@ You just need to add the dependency to your pom:
 
 ``` xml
 <dependency>
-    <groupId>com.github.dokkaltek</groupId>
+    <groupId>io.github.dokkaltek</groupId>
     <artifactId>server-utilities</artifactId>
     <version>1.0.0</version>
 </dependency>
