@@ -7,6 +7,7 @@ import io.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 import static io.github.dokkaltek.constant.literal.SpecialChars.EMPTY_STRING;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -168,6 +170,20 @@ class FunctionalUtilsTest {
     void testIfNotBlankOrNullThenApply() {
         assertEquals(INITIAL_VALUE, FunctionalUtils.ifNotBlankOrNullThenApply(INITIAL_VALUE, (String value) -> value));
         assertNull(FunctionalUtils.ifNotBlankOrNullThenApply(null, (String value) -> DEFAULT_VALUE));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotBlankOrNullThenApply(String, Function)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if the input is not blank or null")
+    void testIfNotBlankOrNullThenRun() {
+        List<String> emptyList = new ArrayList<>(2);
+        assertNotNull(FunctionalUtils.ifNotBlankOrNullThenRun(INITIAL_VALUE, () -> emptyList.add(INITIAL_VALUE)));
+        assertNotNull(FunctionalUtils.ifNotBlankOrNullThenRun(null, () ->emptyList.add(DEFAULT_VALUE)));
+        assertNotNull(FunctionalUtils.ifNotBlankOrNullThenRun(EMPTY_STRING, () ->emptyList.add(DEFAULT_VALUE)));
+        assertEquals(INITIAL_VALUE, emptyList.get(0));
+        assertEquals(1, emptyList.size());
     }
 
     /**

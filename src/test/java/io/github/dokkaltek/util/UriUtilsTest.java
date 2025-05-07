@@ -5,6 +5,7 @@ import io.github.dokkaltek.helper.WrapperList;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ class UriUtilsTest {
     private static final String SAMPLE_URL_NO_PATH_WITH_PORT = "https://test.com:80";
     private static final String SAMPLE_URL_NO_PROTOCOL = "test.com";
     private static final String SAMPLE_URL_WITH_PATH = "https://test.com/some/path";
+    private static final String SAMPLE_PATH_WITH_PATH_VARIABLES = "some/{param}/{param2}/{param}";
     private static final String SAMPLE_URL = "https://test.com/some/path?there=was&some=param#andAFragmentToo";
     private static final String SAMPLE_PATH = "some/path?there=was&some=param#andAFragmentToo";
     private static final String SAMPLE_PATH_WITH_FORWARD_SLASH = SAMPLE_PATH.replace("/", "\\");
@@ -209,9 +211,56 @@ class UriUtilsTest {
     }
 
     /**
+     * Test for {@link UriUtils#joinUriPaths(Map, String...)} method.
+     */
+    @Test
+    @DisplayName("Test joining URIs with path variables")
+    void testJoinUriPathsWithPathVariables() {
+        Map<String, String> pathVariables = new HashMap<>(2);
+        pathVariables.put("param", "value");
+        pathVariables.put("param2", "value2");
+        assertEquals("https://test.com/some/value/value2/value",
+                UriUtils.joinUriPaths(pathVariables, SAMPLE_URL_NO_PATH, SAMPLE_PATH_WITH_PATH_VARIABLES));
+        assertEquals("", UriUtils.joinUriPaths(pathVariables, (String[]) null));
+        assertEquals(SAMPLE_URL, UriUtils.joinUriPaths((Map<String, String>) null, SAMPLE_URL_NO_PATH, SAMPLE_PATH));
+        assertEquals("", UriUtils.joinUriPaths(pathVariables, BLANK_STRING, BLANK_STRING));
+    }
+
+    /**
+     * Test for {@link UriUtils#replacePathVariables(String, String...)} method.
+     */
+    @Test
+    @DisplayName("Test joining URIs with path variables")
+    void testReplacePathVariables() {
+        assertEquals("some/value/value2/value",
+                UriUtils.replacePathVariables(SAMPLE_PATH_WITH_PATH_VARIABLES, "value", "value2", "value"));
+        assertEquals("some/value/value2/{param}",
+                UriUtils.replacePathVariables(SAMPLE_PATH_WITH_PATH_VARIABLES, "value", "value2"));
+        assertEquals(SAMPLE_URL_NO_PATH, UriUtils.replacePathVariables(SAMPLE_URL_NO_PATH));
+        assertEquals("", UriUtils.replacePathVariables(null, "value", "value2"));
+    }
+
+    /**
+     * Test for {@link UriUtils#replacePathVariables(String, Map)} method.
+     */
+    @Test
+    @DisplayName("Test joining URIs with path variables as a map")
+    void testReplacePathVariablesAsMap() {
+        Map<String, String> pathVariables = new HashMap<>(2);
+        pathVariables.put("param", "value");
+        assertEquals("some/value/{param2}/value",
+                UriUtils.replacePathVariables(SAMPLE_PATH_WITH_PATH_VARIABLES, pathVariables));
+        assertEquals(SAMPLE_URL_NO_PATH, UriUtils.replacePathVariables(SAMPLE_URL_NO_PATH));
+        assertEquals("", UriUtils.replacePathVariables(null, pathVariables));
+        assertEquals(SAMPLE_PATH_WITH_PATH_VARIABLES, UriUtils.replacePathVariables(SAMPLE_PATH_WITH_PATH_VARIABLES,
+                Collections.emptyMap()));
+    }
+
+    /**
      * Test for {@link UriUtils#setProtocol(String, String)} method.
      */
     @Test
+    @DisplayName("Test setting the protocol of any URI")
     void testSetProtocol() {
         final String protocol = "ftp://";
         assertEquals(SAMPLE_URL_NO_PATH.replace("https://", protocol), UriUtils.setProtocol(SAMPLE_URL_NO_PATH, protocol));
@@ -224,6 +273,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#setHost(String, String)} method.
      */
     @Test
+    @DisplayName("Test setting the host of any URI")
     void testSetHost() {
         final String host = "test2.com";
         assertEquals(SAMPLE_URL_NO_PATH.replace("test.com", host), UriUtils.setHost(SAMPLE_URL_NO_PATH, host));
@@ -242,6 +292,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#setPort(String, int)} method.
      */
     @Test
+    @DisplayName("Test setting the port of any URI")
     void testSetPort() {
         final String port = ":8080";
         assertEquals(SAMPLE_URL_NO_PATH + port, UriUtils.setPort(SAMPLE_URL_NO_PATH, 8080));
@@ -260,6 +311,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#setPath(String, String)} method.
      */
     @Test
+    @DisplayName("Test setting the path of any URI")
     void testSetPath() {
         final String path = "/new/path";
         assertEquals(SAMPLE_URL_NO_PATH + path, UriUtils.setPath(SAMPLE_URL_NO_PATH, path));
@@ -279,6 +331,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#setQuery(String, String)} method.
      */
     @Test
+    @DisplayName("Test setting the query of any URI")
     void testSetQuery() {
         final String query = "?some=param&goes=here&test";
         assertEquals(SAMPLE_URL_NO_PATH + query, UriUtils.setQuery(SAMPLE_URL_NO_PATH, query));
@@ -299,6 +352,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#setQueryParams(String, Map)} method.
      */
     @Test
+    @DisplayName("Test setting the query parameters of any URI")
     void testSetQueryParams() {
         Map<String, String> queryParamsMap = new HashMap<>();
         queryParamsMap.put("some", "param");
@@ -314,6 +368,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#setMultiValueQueryParams(String, Map)} method.
      */
     @Test
+    @DisplayName("Test setting query parameters with multiple values of any URI")
     void testSetMultiValueQueryParams() {
         Map<String, List<String>> queryParamsMap = new HashMap<>();
         queryParamsMap.put("some", WrapperList.of("param", "param2"));
@@ -331,6 +386,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#setFragment(String, String)} method.
      */
     @Test
+    @DisplayName("Test setting the fragment of any URI")
     void testSetFragment() {
         assertEquals(SAMPLE_URL_NO_PATH + SAMPLE_FRAGMENT,
                 UriUtils.setFragment(SAMPLE_URL_NO_PATH, SAMPLE_FRAGMENT));
@@ -345,6 +401,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#addQueryParam(String, String, String)} method.
      */
     @Test
+    @DisplayName("Test adding a query param to any URI")
     void testAddQueryParam() {
         final String paramKey = "some";
         final String paramValue = "value";
@@ -366,6 +423,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#addMultiValueQueryParam(String, String, List)} method.
      */
     @Test
+    @DisplayName("Test adding a multivalue query param to any URI")
     void testAddMultiValueQueryParam() {
         final String paramKey = "some";
         final List<String> paramValue = WrapperList.of("value1", "value2");
@@ -393,6 +451,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#addMultiValueQueryParams(String, Map)} method.
      */
     @Test
+    @DisplayName("Test adding multiple multivalue query params to any URI")
     void testAddMultiValueQueryParams() {
         Map<String, List<String>> queryParams = new HashMap<>();
         queryParams.put("some", WrapperList.of("value1", "value2"));
@@ -415,6 +474,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#addQueryParams(String, Map)} method.
      */
     @Test
+    @DisplayName("Test adding query params to any URI")
     void testAddQueryParams() {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("some", "value");
@@ -436,6 +496,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#updateQueryParam(String, String, String)} method.
      */
     @Test
+    @DisplayName("Test updating query params to any URI")
     void testUpdateQueryParams() {
         final String paramKey = "some";
         final String paramValue = "value";
@@ -458,6 +519,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#removeProtocol(String)} method.
      */
     @Test
+    @DisplayName("Test removing the protocol of any URI")
     void testRemoveProtocol() {
         assertEquals(SAMPLE_URL_NO_PROTOCOL, UriUtils.removeProtocol(SAMPLE_URL_NO_PATH));
         assertEquals(SAMPLE_URL.substring(8), UriUtils.removeProtocol(SAMPLE_URL));
@@ -473,6 +535,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#removeHost(String)} method.
      */
     @Test
+    @DisplayName("Test removing the host of any URI")
     void testRemoveHost() {
         assertEquals("", UriUtils.removeHost(SAMPLE_URL_NO_PATH));
         assertEquals(SAMPLE_URL.substring(16), UriUtils.removeHost(SAMPLE_URL));
@@ -488,6 +551,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#removePort(String)} method.
      */
     @Test
+    @DisplayName("Test removing the port of any URI")
     void testRemovePort() {
         assertEquals(SAMPLE_URL_NO_PATH, UriUtils.removePort(SAMPLE_URL_NO_PATH_WITH_PORT));
         assertEquals(SAMPLE_URL_NO_PATH, UriUtils.removePort(SAMPLE_URL_NO_PATH));
@@ -504,6 +568,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#removePath(String)} method.
      */
     @Test
+    @DisplayName("Test removing the path of any URI")
     void testRemovePath() {
         assertEquals(SAMPLE_URL_NO_PATH, UriUtils.removePath(SAMPLE_URL_NO_PATH));
         assertEquals("https://test.com?there=was&some=param#andAFragmentToo", UriUtils.removePath(SAMPLE_URL));
@@ -519,6 +584,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#removeQueryParam(String, String)} method.
      */
     @Test
+    @DisplayName("Test removing a query param of any URI")
     void testRemoveQueryParam() {
         final String paramKey = "some";
         assertEquals(SAMPLE_URL_NO_PATH, UriUtils.removeQueryParam(SAMPLE_URL_NO_PATH, paramKey));
@@ -536,6 +602,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#removeQuery(String)} method.
      */
     @Test
+    @DisplayName("Test removing the query of any URI")
     void testRemoveQuery() {
         assertEquals(SAMPLE_URL_NO_PATH, UriUtils.removeQuery(SAMPLE_URL_NO_PATH));
         assertEquals("https://test.com/some/path#andAFragmentToo",
@@ -552,6 +619,7 @@ class UriUtilsTest {
      * Test for {@link UriUtils#removeFragment(String)} method.
      */
     @Test
+    @DisplayName("Test removing the fragment of any URI")
     void testRemoveFragment() {
         assertEquals(SAMPLE_URL_NO_PATH, UriUtils.removeFragment(SAMPLE_URL_NO_PATH));
         assertEquals("https://test.com/some/path?there=was&some=param",

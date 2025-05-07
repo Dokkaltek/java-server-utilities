@@ -177,6 +177,19 @@ public final class FunctionalUtils {
     }
 
     /**
+     * If the passed string is not blank or null, it applies a function to the passed value and
+     * returns the result of the function.
+     * @param string The string to check for blank or null.
+     * @param function The function to apply to the string if it is not blank or null.
+     */
+    public static ResultChain ifNotBlankOrNullThenRun(String string, Runnable function) {
+        if (!isBlankOrNull(string)) {
+            function.run();
+        }
+        return new ResultChain();
+    }
+
+    /**
      * If the passed collection is null or empty, it returns the passed value, otherwise it returns the passed string.
      * @param collection The collection to check for null or empty.
      * @param defaultValue The value to return if the collection is null or empty.

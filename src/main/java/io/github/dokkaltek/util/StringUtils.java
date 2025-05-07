@@ -331,6 +331,7 @@ public final class StringUtils {
 
         return escapedCapsStr;
     }
+
     /**
      * Switches the case of a string with the specified separator.
      * @param str The string to switch the case to.

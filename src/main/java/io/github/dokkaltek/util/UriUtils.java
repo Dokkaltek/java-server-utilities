@@ -1,5 +1,6 @@
 package io.github.dokkaltek.util;
 
+import io.github.dokkaltek.constant.literal.SpecialChars;
 import io.github.dokkaltek.exception.InvalidInputException;
 import io.github.dokkaltek.exception.InvalidUriException;
 import io.github.dokkaltek.helper.WrapperList;
@@ -351,6 +352,86 @@ public final class UriUtils {
         }
         return builder.toString();
     }
+
+    /**
+     * Joins the parts of the uri making sure that no double slashes are added when joining,
+     * while adding the path variables.
+     * @param pathVariables The path variables to add.
+     * @param paths The base uri, the paths, the query, or the fragment to join.
+     * @return The joined url.
+     */
+    public static String joinUriPaths(Map<String, String> pathVariables, String... paths) {
+        if (paths == null || paths.length == 0) {
+            return joinUriPaths(paths);
+        }
+
+        String[] updatedPaths = new String[paths.length];
+        for (int i = 0; i < paths.length; i++) {
+            updatedPaths[i] = replacePathVariables(paths[i], pathVariables);
+        }
+
+        return joinUriPaths(updatedPaths);
+    }
+
+    /**
+     * Replaces the path variables with their values in the path.
+     * @param path The path to replace the variables in.
+     * @param pathVariables The path variables to replace.
+     * @return The path with the variables replaced.
+     */
+    public static String replacePathVariables(String path, String... pathVariables) {
+        if (path == null)
+            return EMPTY_STRING;
+        if (pathVariables == null || pathVariables.length == 0)
+            return path;
+
+        String updatedPath = path;
+        String pathToCheck = updatedPath;
+
+        for (String pathVariable : pathVariables) {
+            boolean containsMoreVariables = pathToCheck.indexOf(SpecialChars.OPEN_CURLY_BRACKET) <
+                    pathToCheck.indexOf(SpecialChars.CLOSE_CURLY_BRACKET);
+            if (!containsMoreVariables)
+                break;
+            pathToCheck = pathToCheck.substring(pathToCheck.indexOf(SpecialChars.CLOSE_CURLY_BRACKET) + 1);
+            if (pathVariable != null) {
+                updatedPath = updatedPath.substring(0, updatedPath.indexOf(SpecialChars.OPEN_CURLY_BRACKET)) +
+                        pathVariable + updatedPath.substring(updatedPath.indexOf(SpecialChars.CLOSE_CURLY_BRACKET) + 1);
+            }
+        }
+
+        return updatedPath;
+    }
+
+    /**
+     * Replaces the path variables with their values in the path.
+     * @param path The path to replace the variables in.
+     * @param pathVariables The path variables to replace.
+     * @return The path with the variables replaced.
+     */
+    public static String replacePathVariables(String path, Map<String, String> pathVariables) {
+        if (path == null)
+            return EMPTY_STRING;
+        if (pathVariables == null || pathVariables.isEmpty())
+            return path;
+
+        String updatedPath = path;
+        String pathToCheck = updatedPath;
+        while (pathToCheck.indexOf(SpecialChars.OPEN_CURLY_BRACKET) <
+                pathToCheck.indexOf(SpecialChars.CLOSE_CURLY_BRACKET)) {
+            String key = pathToCheck.substring(pathToCheck.indexOf(SpecialChars.OPEN_CURLY_BRACKET) + 1,
+                    pathToCheck.indexOf(SpecialChars.CLOSE_CURLY_BRACKET));
+            String value = pathVariables.get(key);
+            pathToCheck = pathToCheck.substring(pathToCheck.indexOf(SpecialChars.CLOSE_CURLY_BRACKET) + 1);
+            if (value != null) {
+                key = SpecialChars.OPEN_CURLY_BRACKET + key + SpecialChars.CLOSE_CURLY_BRACKET;
+                updatedPath = updatedPath.replace(key, value);
+            }
+        }
+
+        return updatedPath;
+    }
+
 
     /**
      * Sets the protocol of the uri.  If the uri isn't valid, it returns the protocol.
