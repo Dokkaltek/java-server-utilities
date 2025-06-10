@@ -199,7 +199,7 @@ public final class UriUtils {
                         if (queryParams.containsKey(key)) {
                             values = new WrapperList<>(queryParams.get(key));
                         }
-                        values.add(keyAndValue[1]);
+                        values.add(getQueryParamValue(keyAndValue));
                     }
                     queryParams.put(key, values);
                 }
@@ -1099,5 +1099,17 @@ public final class UriUtils {
             builder.append(pathToJoin);
         }
         return builder;
+    }
+
+    /**
+     * Returns the value of the query param.
+     * @param queryFragments The query fragments.
+     * @return The value of the query param.
+     */
+    public static String getQueryParamValue(String[] queryFragments) {
+        if (queryFragments == null || queryFragments.length <= 1)
+            return null;
+
+        return String.join(EQUAL_SIGN, Arrays.copyOfRange(queryFragments, 1, queryFragments.length));
     }
 }

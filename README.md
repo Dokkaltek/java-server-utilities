@@ -42,6 +42,6 @@ You just need to add the dependency to your pom:
 <dependency>
     <groupId>io.github.dokkaltek</groupId>
     <artifactId>server-utilities</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```

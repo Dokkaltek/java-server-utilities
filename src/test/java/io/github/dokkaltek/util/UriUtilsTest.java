@@ -118,6 +118,7 @@ class UriUtilsTest {
         assertEquals("was", queryParameters.get("there").first());
         assertEquals("param", queryParameters.get("some").first());
         assertEquals(2, UriUtils.getQueryParams("?some=param&some=otherVal").get("some").size());
+        assertEquals("is=a", UriUtils.getQueryParams("?this=is=a&value").get("this").first());
         assertEquals(0, UriUtils.getQueryParams(BLANK_STRING).size());
         assertEquals(0, UriUtils.getQueryParams(null).size());
         assertThrows(InvalidUriException.class, () -> UriUtils.getQueryParams(INVALID_URI));
@@ -358,10 +359,12 @@ class UriUtilsTest {
         queryParamsMap.put("some", "param");
         queryParamsMap.put("goes", "here");
         queryParamsMap.put("sample", null);
+        queryParamsMap.put("new", "param=value");
         String newUrl = UriUtils.setQueryParams(SAMPLE_URL_NO_PATH, queryParamsMap);
         assertTrue(newUrl.contains("some=param"));
         assertTrue(newUrl.contains("goes=here"));
         assertTrue(newUrl.contains("sample"));
+        assertTrue(newUrl.contains("new=param=value"));
     }
 
     /**
