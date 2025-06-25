@@ -10,7 +10,9 @@ import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Subclass of {@link ArrayList} that brings some convenience methods to the class to operate on the first and last
@@ -34,6 +36,15 @@ public class WrapperList<T> extends ArrayList<T> {
      */
     public WrapperList(Collection<? extends T> collection) {
         super(collection);
+    }
+
+    /**
+     * Constructor that creates a list from an iterable.
+     * @param iterable The iterable with the elements to add to this list.
+     */
+    public WrapperList(Iterable<? extends T> iterable) {
+        super(StreamSupport.stream(iterable.spliterator(), false)
+                .collect(Collectors.toList()));
     }
 
     /**
