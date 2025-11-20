@@ -83,7 +83,7 @@ public final class JsonUtils {
      * @return The json string representation of the object.
      * @throws JSONException If the object cannot be converted to a json string.
      */
-    public static String convertToJSONString(Object object) {
+    public static <T> String convertToJSONString(T object) {
         if (object == null)
             return null;
         try {
@@ -100,7 +100,7 @@ public final class JsonUtils {
      * @param defaultValue The default value to return in case the object is null or an error occurs.
      * @return The json string representation of the object.
      */
-    public static String convertToJSONStringOrElse(Object object, String defaultValue) {
+    public static <T> String convertToJSONStringOrElse(T object, String defaultValue) {
         if (object == null)
             return defaultValue;
         try {
@@ -174,11 +174,11 @@ public final class JsonUtils {
      * @param json The json string to convert.
      * @return The map representation of the json string.
      */
-    public static Map<String, Object> convertJSONToMap(String json) {
+    public static <T> Map<String, T> convertJSONToMap(String json) {
         if (isBlankOrNull(json))
             return Collections.emptyMap();
         try {
-            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {};
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
             return objectMapper.readValue(json, typeRef);
         } catch (IOException e) {
             throw new JSONException(e);
@@ -190,11 +190,11 @@ public final class JsonUtils {
      * @param object The json string to convert.
      * @return The map representation of the json string.
      */
-    public static Map<String, Object> convertObjectToMap(Object object) {
+    public static <T, I> Map<String, T> convertObjectToMap(I object) {
         if (object == null)
             return Collections.emptyMap();
         try {
-            TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {};
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
             return objectMapper.convertValue(object, typeRef);
         } catch (IllegalArgumentException e) {
             throw new JSONException(e);
