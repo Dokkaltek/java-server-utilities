@@ -1,5 +1,6 @@
 package io.github.dokkaltek.util;
 
+import io.github.dokkaltek.constant.literal.SpecialChars;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -97,7 +98,7 @@ public final class StringUtils {
      */
     public static String repeat(String str, int times) {
         if (str == null || times < 0) {
-            return str;
+            return SpecialChars.EMPTY_STRING;
         }
 
         StringBuilder builder = new StringBuilder();

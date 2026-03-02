@@ -5,9 +5,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Optional;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -138,17 +136,6 @@ public class WrapperList<T> extends ArrayList<T> {
     }
 
     /**
-     * Keeps the elements that fulfill a predicate. The list is modified regardless, so you don't need to store the
-     * result of the method and can chain it.
-     * @param predicate The condition to keep the elements.
-     * @return The list with the removed elements.
-     */
-    public WrapperList<T> filter(Predicate<? super T> predicate) {
-        removeIf(t -> !predicate.test(t));
-        return this;
-    }
-
-    /**
      * Finds the first result that matches a condition.
      * @param predicate The condition to match the elements.
      * @return The first result that matches the predicate.
@@ -163,20 +150,6 @@ public class WrapperList<T> extends ArrayList<T> {
     }
 
     /**
-     * Maps each element of the {@link WrapperList} to another type using the specified function in an interator.
-     * @param mapper The mapping operation to perform.
-     * @return The result of the map operation.
-     */
-    public <R> WrapperList<R> map(Function<? super T, ? extends R> mapper) {
-        Iterator<T> iterator = iterator();
-        WrapperList<R> newList = new WrapperList<>(size());
-        while (iterator.hasNext()) {
-            newList.add(mapper.apply(iterator.next()));
-        }
-        return newList;
-    }
-
-    /**
      * Maps each element of the {@link WrapperList} to another type using the specified function using streams API
      * and returns the resulting {@link Stream}.
      * @param mapper The mapping operation to perform.
@@ -184,15 +157,6 @@ public class WrapperList<T> extends ArrayList<T> {
      */
     public <R> Stream<R> mapToStream(Function<? super T, ? extends R> mapper) {
         return this.stream().map(mapper);
-    }
-
-    /**
-     * Reduces the elements of the {@link WrapperList} to a single object using streams API.
-     * @param accumulator The reducer operation to perform.
-     * @return The result of the map operation.
-     */
-    public Optional<T> reduce(BinaryOperator<T> accumulator) {
-        return this.stream().reduce(accumulator);
     }
 
     /**
