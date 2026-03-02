@@ -1,7 +1,7 @@
 # Server utilities
 Server utilities library for java server applications. 
 
-The minimum supported version is **Java 8**.
+The minimum supported version is **Java 17**. For the **Java 8** compatible version see the [main](https://github.com/Dokkaltek/java-server-utilities/tree/main) branch.
 
 This library tries to be lightweight without having too many transitive dependencies.
 
@@ -42,6 +42,6 @@ You just need to add the dependency to your pom:
 <dependency>
     <groupId>io.github.dokkaltek</groupId>
     <artifactId>server-utilities</artifactId>
-    <version>1.1.4</version>
+    <version>2.0.0</version>
 </dependency>
 ```
