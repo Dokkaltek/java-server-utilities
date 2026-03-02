@@ -191,7 +191,7 @@ class AESUtilsTest {
         output.deleteOnExit();
         decryptedOut.deleteOnExit();
 
-        Files.write(input.toPath(), SAMPLE_MESSAGE.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(input.toPath(), SAMPLE_MESSAGE);
 
         SecretKey key = generateAESKey(AESKeyBits.KEY_128);
         IvParameterSpec iv = generateIv();
@@ -223,7 +223,7 @@ class AESUtilsTest {
         output.deleteOnExit();
         decryptedOut.deleteOnExit();
 
-        Files.write(input.toPath(), SAMPLE_MESSAGE.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(input.toPath(), SAMPLE_MESSAGE);
 
         SecretKey key = generateAESKey(AESKeyBits.KEY_128);
         GCMParameterSpec iv = generateIvForGCM();

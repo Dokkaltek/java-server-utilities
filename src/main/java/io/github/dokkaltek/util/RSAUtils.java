@@ -75,7 +75,7 @@ public class RSAUtils {
         String endPublic = "\n" + KEY_STRING_SEPARATOR + "END PUBLIC KEY" + KEY_STRING_SEPARATOR;
 
         try {
-            Files.write(file.toPath(), (beginPublic + keyContent + endPublic).getBytes(StandardCharsets.UTF_8));
+            Files.writeString(file.toPath(), beginPublic + keyContent + endPublic);
         } catch (IOException e) {
             throw new GenericException("Error writing key to file", e, INTERNAL_SERVER_ERROR.code());
         }
@@ -95,7 +95,7 @@ public class RSAUtils {
         String endPrivate = "\n" + KEY_STRING_SEPARATOR + "END PRIVATE KEY" + KEY_STRING_SEPARATOR;
 
         try {
-            Files.write(file.toPath(), (beginPrivate + keyContent + endPrivate).getBytes(StandardCharsets.UTF_8));
+            Files.writeString(file.toPath(), beginPrivate + keyContent + endPrivate);
         } catch (IOException e) {
             throw new GenericException("Error writing key to file", e, INTERNAL_SERVER_ERROR.code());
         }

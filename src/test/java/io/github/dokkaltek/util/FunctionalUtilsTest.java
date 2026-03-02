@@ -260,7 +260,6 @@ class FunctionalUtilsTest {
      * Tests {@link FunctionalUtils#ifTrueThenReturn(boolean, Object)} method.
      */
     @Test
-    @SuppressWarnings("ConstantValue")
     @DisplayName("Test returning a value when the condition is true")
     void testIfTrueThenReturn() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenReturn(true, DEFAULT_VALUE));
@@ -271,7 +270,6 @@ class FunctionalUtilsTest {
      * Tests {@link FunctionalUtils#ifFalseThenReturn(boolean, Object)} method.
      */
     @Test
-    @SuppressWarnings("ConstantValue")
     @DisplayName("Test returning a value when the condition is false")
     void testIfFalseThenReturn() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenReturn(false, DEFAULT_VALUE));

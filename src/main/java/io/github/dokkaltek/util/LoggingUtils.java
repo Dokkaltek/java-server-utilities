@@ -28,8 +28,8 @@ public class LoggingUtils {
             return null;
         }
 
-        if (object instanceof String) {
-            return Encode.forJava((String) object);
+        if (object instanceof String strObj) {
+            return Encode.forJava(strObj);
         }
 
         return Encode.forJava(object.toString());
@@ -95,8 +95,8 @@ public class LoggingUtils {
             int actualEnd = Math.min(value.length(), end);
 
             if (value.length() > start) {
-                String maskedValue = value.substring(0, start) + StringUtils.repeat(SpecialChars.ASTERISK,
-                        actualEnd - start) + value.substring(actualEnd);
+                String maskedValue = value.substring(0, start) + SpecialChars.ASTERISK.repeat(actualEnd - start)
+                        + value.substring(actualEnd);
                 message = message.replace(field + splitter + value, field + splitter + maskedValue);
             }
         }
@@ -137,9 +137,9 @@ public class LoggingUtils {
 
             String maskedValue;
             if (end > 0) {
-                maskedValue = StringUtils.repeat(SpecialChars.ASTERISK, end) + value.substring(end);
+                maskedValue = SpecialChars.ASTERISK.repeat(end) + value.substring(end);
             } else {
-                maskedValue = StringUtils.repeat(SpecialChars.ASTERISK, value.length());
+                maskedValue = SpecialChars.ASTERISK.repeat(value.length());
             }
             message = message.replace(field + splitter + value, field + splitter + maskedValue);
         }
@@ -188,13 +188,13 @@ public class LoggingUtils {
                 if (start < end) {
                     int actualEnd = Math.min(subValue.length(), end);
                     if (subValue.length() > start) {
-                        subValue = subValue.substring(0, start) + StringUtils.repeat(SpecialChars.ASTERISK,
-                                actualEnd - start) + subValue.substring(actualEnd);
+                        subValue = subValue.substring(0, start) + SpecialChars.ASTERISK.repeat(actualEnd - start)
+                                + subValue.substring(actualEnd);
                     }
                 }
-                maskedValue = StringUtils.repeat(SpecialChars.ASTERISK, charIndex) + charToStopAt + subValue;
+                maskedValue = SpecialChars.ASTERISK.repeat(charIndex) + charToStopAt + subValue;
             } else {
-                maskedValue = StringUtils.repeat(SpecialChars.ASTERISK, value.length());
+                maskedValue = SpecialChars.ASTERISK.repeat(value.length());
             }
             message = message.replace(field + splitter + value, field + splitter + maskedValue);
         }

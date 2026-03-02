@@ -1,19 +1,20 @@
 package io.github.dokkaltek.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
+
 import io.github.dokkaltek.exception.InvalidInputException;
 import io.github.dokkaltek.exception.JSONException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.util.TokenBuffer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,7 +59,7 @@ public final class JsonUtils {
         try {
             objectMapper.readTree(json);
             return true;
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return false;
         }
     }
@@ -74,7 +75,7 @@ public final class JsonUtils {
 
         try {
             objectMapper.readTree(json);
-        } catch (JsonProcessingException | IllegalArgumentException e) {
+        } catch (JacksonException | IllegalArgumentException e) {
             throw new JSONException(e);
         }
     }
@@ -90,7 +91,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -107,7 +108,7 @@ public final class JsonUtils {
             return defaultValue;
         try {
             return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.info(String.format("Error converting object to json string, returning default value '%s' instead.",
                     defaultValue));
             return defaultValue;
@@ -127,7 +128,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(json, clazz);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -148,7 +149,7 @@ public final class JsonUtils {
 
         try {
             return objectMapper.readValue(json, clazz);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.info(String.format("Error converting json string to object, returning default value '%s' instead.",
                     defaultValue));
             return defaultValue;
@@ -166,7 +167,7 @@ public final class JsonUtils {
             return new byte[]{};
         try {
             return objectMapper.writeValueAsBytes(json);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -180,9 +181,9 @@ public final class JsonUtils {
         if (isBlankOrNull(json))
             return Collections.emptyMap();
         try {
-            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<>() {};
             return objectMapper.readValue(json, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -196,7 +197,7 @@ public final class JsonUtils {
         if (object == null)
             return Collections.emptyMap();
         try {
-            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<>() {};
             return objectMapper.convertValue(object, typeRef);
         } catch (IllegalArgumentException e) {
             throw new JSONException(e);
@@ -212,9 +213,9 @@ public final class JsonUtils {
         if (isBlankOrNull(json))
             return Collections.emptyList();
         try {
-            TypeReference<ArrayList<T>> typeRef = new TypeReference<ArrayList<T>>() {};
+            TypeReference<ArrayList<T>> typeRef = new TypeReference<>() {};
             return objectMapper.readValue(json, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -229,7 +230,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(json, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -248,7 +249,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(byteArray, clazz);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -272,7 +273,7 @@ public final class JsonUtils {
 
         try {
             return objectMapper.readTree(json);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -300,7 +301,7 @@ public final class JsonUtils {
             if (!tree.isArray())
                 return null;
             return (ArrayNode) tree;
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -315,10 +316,10 @@ public final class JsonUtils {
         if (object == null)
             return null;
         try {
-            TokenBuffer tb = new TokenBuffer(new ObjectMapper(), false);
+            TokenBuffer tb = new TokenBuffer(ObjectWriteContext.empty(), false);
             objectMapper.writeValue(tb, object);
             return (T) objectMapper.readValue(tb.asParser(), object.getClass());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -327,10 +328,7 @@ public final class JsonUtils {
      * Initializes the default object mapper.
      * @return The default object mapper.
      */
-    private static ObjectMapper initObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return objectMapper;
+    private static JsonMapper initObjectMapper() {
+        return JsonMapper.builder().findAndAddModules().build();
     }
 }

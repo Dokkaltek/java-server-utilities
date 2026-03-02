@@ -1,5 +1,6 @@
 package io.github.dokkaltek.util;
 
+import io.github.dokkaltek.constant.literal.SpecialChars;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -21,24 +22,12 @@ public final class StringUtils {
     private static final String BAR = "-";
 
     /**
-     * Checks that a string is not blank or empty.
-     * This method is only useful if you are using Java 8, otherwise you should use the one from Java 11 from
-     * {@link String} class.
-     * @param str The string to check.
-     * @return True if the string is not blank, false otherwise.
-     */
-    public static boolean isBlank(String str) {
-        if (str.isEmpty()) return true;
-        return str.chars().allMatch(Character::isWhitespace);
-    }
-
-    /**
      * Checks if a string is blank, empty or null.
      * @param str The string to check.
      * @return True if the string is blank, empty or null, false otherwise.
      */
     public static boolean isBlankOrNull(String str) {
-        return str == null || isBlank(str);
+        return str == null || str.isBlank();
     }
 
     /**
@@ -61,21 +50,18 @@ public final class StringUtils {
      * @return The concatenated string.
      */
     public static String concatenate(String... strings) {
-        if (strings == null || strings.length == 0 || (strings.length == 1 && strings[0] == null)) {
-            return "";
-        }
+        if (strings == null || strings.length == 0 || (strings.length == 1 && strings[0] == null))
+            return SpecialChars.EMPTY_STRING;
 
         // If only one string was passed, we return it as-is
-        if (strings.length == 1) {
+        if (strings.length == 1)
             return strings[0];
-        }
 
         // Filter out null strings and concatenate
         StringBuilder builder = new StringBuilder();
         for (String s : strings) {
-            if (s != null) {
+            if (s != null)
                 builder.append(s);
-            }
         }
         return builder.toString();
     }
@@ -93,29 +79,24 @@ public final class StringUtils {
      * Repeats a string the given number of times.
      * @param str The string to repeat.
      * @param times The number of times to repeat.
-     * @return The string repeated the specified number of times.
+     * @return The string repeated the specified number of times. If the 'str' is null or the 'times' variable is
+     * negative it returns an empty string.
      */
     public static String repeat(String str, int times) {
-        if (str == null || times < 0) {
-            return str;
-        }
+        if (str == null || times < 0)
+            return SpecialChars.EMPTY_STRING;
 
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < times; i++) {
-            builder.append(str);
-        }
-        return builder.toString();
+        return str.repeat(times);
     }
 
     /**
-     * Trims a string if it's not null, otherwise returns null.
-     * @param str The string to trim.
-     * @return The trimmed string.
+     * Trims the spaces before and after a string.
+     * @param str The string to trim the spaces of.
+     * @return The string without the spaces before and after. If the string was null it returns it as null.
      */
     public static String trim(String str) {
-        if (str == null) {
+        if (str == null)
             return null;
-        }
 
         return str.trim();
     }
@@ -191,7 +172,7 @@ public final class StringUtils {
 
         if (str.length() == 1) {
             return str.toUpperCase(Locale.getDefault());
-        } else if (str.length() > 1 && !isBlank(str)) {
+        } else if (str.length() > 1 && !str.isBlank()) {
             String firstLetter = str.substring(0, 1).toUpperCase(Locale.getDefault());
             return firstLetter + str.substring(1);
         } else {
@@ -213,7 +194,7 @@ public final class StringUtils {
 
         if (str.length() == 1) {
             return str.toUpperCase(Locale.getDefault());
-        } else if (str.length() > 1 && !isBlank(str)) {
+        } else if (str.length() > 1 && !str.isBlank()) {
             Matcher match = WORD_PATTERN.matcher(str);
             StringBuilder capitalizedString = new StringBuilder();
             int prevIndex = 0;

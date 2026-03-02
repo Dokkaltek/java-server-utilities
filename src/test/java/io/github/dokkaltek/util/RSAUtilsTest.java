@@ -87,7 +87,7 @@ class RSAUtilsTest {
 
         // Exceptions
         try (MockedStatic<Files> mockedStatic = mockStatic(Files.class)) {
-            mockedStatic.when(() -> Files.write(any(Path.class), any(byte[].class))).thenThrow(IOException.class);
+            mockedStatic.when(() -> Files.writeString(any(Path.class), any(CharSequence.class))).thenThrow(IOException.class);
             mockedStatic.when(() -> Files.readAllBytes(any(Path.class))).thenThrow(IOException.class);
             assertThrows(GenericException.class, () -> writePublicKeyToFile(pubKey, publicFile));
             assertThrows(GenericException.class, () -> writePrivateKeyToFile(privKey, privateFile));

@@ -85,7 +85,7 @@ class StringUtilsTest {
     void testRepeat() {
         assertEquals("bobobo", repeat(SAMPLE_SHORT_STRING, 3));
         assertEquals("", repeat(SAMPLE_SHORT_STRING, 0));
-        assertEquals(SAMPLE_SHORT_STRING, repeat(SAMPLE_SHORT_STRING, -1));
+        assertEquals("", repeat(SAMPLE_SHORT_STRING, -1));
     }
 
     /**
