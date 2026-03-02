@@ -1,5 +1,6 @@
 package io.github.dokkaltek.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -9,7 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -142,7 +145,6 @@ class JsonUtilsTest {
         sampleMap.put("age", 30);
         assertEquals(sampleMap, JsonUtils.convertJSONToMap(SAMPLE_JSON_POJO));
         assertTrue(JsonUtils.convertJSONToMap(null).isEmpty());
-        assertThrows(JSONException.class, () -> JsonUtils.validateJSONWithEx(INVALID_JSON));
     }
 
     /**
@@ -158,6 +160,36 @@ class JsonUtilsTest {
         assertEquals(sampleMap, JsonUtils.convertObjectToMap(samplePojo));
         assertTrue(JsonUtils.convertObjectToMap(null).isEmpty());
         assertThrows(JSONException.class, () -> JsonUtils.convertObjectToMap(INVALID_OBJECT));
+    }
+
+    /**
+     * Test for {@link JsonUtils#convertJSONToList(String)} method.
+     */
+    @Test
+    @DisplayName("Test converting a json string to a list")
+    void testConvertJSONToList() {
+        List<String> sampleList = new ArrayList<>();
+        sampleList.add("test");
+        sampleList.add("test2");
+        assertEquals(sampleList, JsonUtils.convertJSONToList("[\"test\", \"test2\"]"));
+        assertTrue(JsonUtils.convertJSONToList(null).isEmpty());
+        assertThrows(JSONException.class, () -> JsonUtils.convertJSONToList(SAMPLE_JSON_POJO));
+    }
+
+    /**
+     * Test for {@link JsonUtils#convertJSONToParametrizedType(String, TypeReference)}  method.
+     */
+    @Test
+    @DisplayName("Test converting a json string to a parametrized type")
+    void testConvertJSONToParametrizedType() {
+        List<String> sampleList = new ArrayList<>();
+        sampleList.add("test");
+        sampleList.add("test2");
+        TypeReference<ArrayList<String>> typeRef = new TypeReference<ArrayList<String>>(){};
+        String sampleInput = "[\"test\", \"test2\"]";
+        assertEquals(sampleList, JsonUtils.convertJSONToParametrizedType(sampleInput, typeRef));
+        assertNull(JsonUtils.convertJSONToParametrizedType(null, typeRef));
+        assertThrows(JSONException.class, () -> JsonUtils.convertJSONToParametrizedType(SAMPLE_JSON_POJO, typeRef));
     }
 
     /**

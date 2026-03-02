@@ -108,6 +108,19 @@ public final class StringUtils {
     }
 
     /**
+     * Trims a string if it's not null, otherwise returns null.
+     * @param str The string to trim.
+     * @return The trimmed string.
+     */
+    public static String trim(String str) {
+        if (str == null) {
+            return null;
+        }
+
+        return str.trim();
+    }
+
+    /**
      * Pads a string to the given length adding spaces to it's left.
      * If the string is null, it will return null.
      * @param str The string to pad.

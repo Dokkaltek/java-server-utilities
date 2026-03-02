@@ -14,8 +14,10 @@ import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.github.dokkaltek.util.StringUtils.isBlankOrNull;
@@ -200,6 +202,38 @@ public final class JsonUtils {
             throw new JSONException(e);
         }
     }
+
+    /**
+     * Converts a json string to a list of a type.
+     * @param json The json string to convert.
+     * @return The list representation of the json string.
+     */
+    public static <T> List<T> convertJSONToList(String json) {
+        if (isBlankOrNull(json))
+            return Collections.emptyList();
+        try {
+            TypeReference<ArrayList<T>> typeRef = new TypeReference<ArrayList<T>>() {};
+            return objectMapper.readValue(json, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts a json string to an object of a parametrized type.
+     * @param json The json string to convert.
+     * @return The parametrized type representation of the json string.
+     */
+    public static <T> T convertJSONToParametrizedType(String json, TypeReference<T> typeRef) {
+        if (isBlankOrNull(json))
+            return null;
+        try {
+            return objectMapper.readValue(json, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
 
     /**
      * Converts a byte array to an object. If the byte array is null or empty it returns null.

@@ -20,6 +20,7 @@ import static io.github.dokkaltek.util.StringUtils.toPascalCase;
 import static io.github.dokkaltek.util.StringUtils.toScreamingKebabCase;
 import static io.github.dokkaltek.util.StringUtils.toScreamingSnakeCase;
 import static io.github.dokkaltek.util.StringUtils.toSnakeCase;
+import static io.github.dokkaltek.util.StringUtils.trim;
 import static io.github.dokkaltek.util.StringUtils.truncate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -85,6 +86,16 @@ class StringUtilsTest {
         assertEquals("bobobo", repeat(SAMPLE_SHORT_STRING, 3));
         assertEquals("", repeat(SAMPLE_SHORT_STRING, 0));
         assertEquals(SAMPLE_SHORT_STRING, repeat(SAMPLE_SHORT_STRING, -1));
+    }
+
+    /**
+     * Test for {@link StringUtils#trim(String)} method.
+     */
+    @Test
+    @DisplayName("Test trimming a string")
+    void testTrim() {
+        assertEquals("bo", trim(" " + SAMPLE_SHORT_STRING + " "));
+        assertNull(trim(null));
     }
 
     /**
