@@ -136,30 +136,6 @@ public class WrapperList<T> extends ArrayList<T> {
     }
 
     /**
-     * Finds the first result that matches a condition.
-     * @param predicate The condition to match the elements.
-     * @return The first result that matches the predicate.
-     */
-    public Optional<T> findFirstMatch(Predicate<? super T> predicate) {
-        for (T element : this) {
-            if (predicate.test(element)) {
-                return Optional.of(element);
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Maps each element of the {@link WrapperList} to another type using the specified function using streams API
-     * and returns the resulting {@link Stream}.
-     * @param mapper The mapping operation to perform.
-     * @return The result of the map operation.
-     */
-    public <R> Stream<R> mapToStream(Function<? super T, ? extends R> mapper) {
-        return this.stream().map(mapper);
-    }
-
-    /**
      * Creates a {@link WrapperList} from an array of elements with an initial capacity of the number of elements.
      * @param elements The elements to add to the {@link WrapperList}.
      * @return The {@link WrapperList} with the elements.
