@@ -3,6 +3,12 @@ package io.github.dokkaltek.util;
 import io.github.dokkaltek.exception.ResultNotFoundException;
 import io.github.dokkaltek.helper.ResultChain;
 import io.github.dokkaltek.helper.WrapperList;
+import io.github.dokkaltek.interfaces.QuadConsumer;
+import io.github.dokkaltek.interfaces.QuadFunction;
+import io.github.dokkaltek.interfaces.QuinConsumer;
+import io.github.dokkaltek.interfaces.QuinFunction;
+import io.github.dokkaltek.interfaces.TriConsumer;
+import io.github.dokkaltek.interfaces.TriFunction;
 import io.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +17,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -78,13 +87,33 @@ class FunctionalUtilsTest {
     }
 
     /**
-     * Tests {@link FunctionalUtils#ifNullThenSupply(Object, Supplier)} method.
+     * Tests {@link FunctionalUtils#ifNullThenSupplyChain(Object, Supplier)} method.
      */
     @Test
     @DisplayName("Test returning a function value when the input is null")
+    void testIfNullThenSupplyChain() {
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifNullThenSupplyChain(null, () -> DEFAULT_VALUE).get());
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifNullThenSupplyChain(INITIAL_VALUE, () -> DEFAULT_VALUE).get());
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNullThenSupply(Object, Supplier)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value when the input is null")
     void testIfNullThenSupply() {
-        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifNullThenSupply(null, () -> DEFAULT_VALUE).firstResult());
-        ResultChain result = FunctionalUtils.ifNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE);
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifNullThenSupply(null, () -> DEFAULT_VALUE));
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenSupplyChain(Object, Supplier)} method.
+     */
+    @Test
+    @DisplayName("Test returning a function value when the input is not null")
+    void testIfNotNullThenSupplyChain() {
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifNotNullThenSupplyChain(INITIAL_VALUE, () -> DEFAULT_VALUE).get());
+        ResultChain result = FunctionalUtils.ifNotNullThenSupplyChain(null, () -> DEFAULT_VALUE);
         assertNull(result.firstResult());
     }
 
@@ -92,21 +121,123 @@ class FunctionalUtilsTest {
      * Tests {@link FunctionalUtils#ifNotNullThenSupply(Object, Supplier)} method.
      */
     @Test
-    @DisplayName("Test returning a function value when the input is not null")
+    @DisplayName("Test returning a value when the input is not null")
     void testIfNotNullThenSupply() {
-        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifNotNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE).firstResult());
-        ResultChain result = FunctionalUtils.ifNotNullThenSupply(null, () -> DEFAULT_VALUE);
-        assertNull(result.firstResult());
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifNotNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE));
+        assertNull(FunctionalUtils.ifNotNullThenSupply(null, () -> DEFAULT_VALUE));
     }
 
     /**
      * Tests {@link FunctionalUtils#ifNotNullThenApply(Object, Function)} method.
      */
     @Test
-    @DisplayName("Test returning a value after mapping it when the input is not null")
-    void testIfNotNullThenApply() {
+    @DisplayName("Test returning a value after checking the input is not null (1 param)")
+    void testIfNotNullThenApply1Param() {
         assertEquals(INITIAL_VALUE, FunctionalUtils.ifNotNullThenApply(INITIAL_VALUE, (String value) -> value));
         assertNull(FunctionalUtils.ifNotNullThenApply(null, (String value) -> DEFAULT_VALUE));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenApply(Object, Object, BiFunction)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value after checking the input is not null (2 params)")
+    void testIfNotNullThenApply2Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifNotNullThenApply(INITIAL_VALUE, INITIAL_VALUE,
+                        (String value1, String value2) -> value1 + value2));
+        assertNull(FunctionalUtils.ifNotNullThenApply(null, INITIAL_VALUE,
+                (String value1, String value2) -> value1 + value2));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenApply(Object, Object, Object, TriFunction)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value after checking the input is not null (3 params)")
+    void testIfNotNullThenApply3Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifNotNullThenApply(INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifNotNullThenApply(null, INITIAL_VALUE, INITIAL_VALUE,
+                (String value1, String value2, String value3) -> value1 + value2 + value3));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenApply(Object, Object, Object, Object, QuadFunction)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value after checking the input is not null (4 params)")
+    void testIfNotNullThenApply4Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifNotNullThenApply(INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifNotNullThenApply(null, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                (String value1, String value2, String value3, String value4) -> value1 + value2 + value3 + value4));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenApply(Object, Object, Object, Object, Object, QuinFunction)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value after checking the input is not null (5 params)")
+    void testIfNotNullThenApply5Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifNotNullThenApply(INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifNotNullThenApply(null, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, null,
+                (String value1, String value2, String value3, String value4, String value5) ->
+                        value1 + value2 + value3 + value4 + value5));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenConsume(Object, Consumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function after checking the input is not null (1 param)")
+    void testIfNotNullThenConsume1Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifNotNullThenConsume(INITIAL_VALUE, (String value) ->
+                StringUtils.concatenate(value, INITIAL_VALUE)));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenConsume(Object, Object, BiConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function after checking the input is not null (2 param)")
+    void testIfNotNullThenConsume2Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifNotNullThenConsume(INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenConsume(Object, Object, Object, TriConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function after checking the input is not null (3 param)")
+    void testIfNotNullThenConsume3Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifNotNullThenConsume(INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenConsume(Object, Object, Object, Object, QuadConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function after checking the input is not null (4 param)")
+    void testIfNotNullThenConsume4Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifNotNullThenConsume(INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifNotNullThenConsume(Object, Object, Object, Object, Object, QuinConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function after checking the input is not null (5 param)")
+    void testIfNotNullThenConsume5Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifNotNullThenConsume(INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
     }
 
     /**
@@ -152,14 +283,24 @@ class FunctionalUtilsTest {
     }
 
     /**
-     * Tests {@link FunctionalUtils#ifBlankOrNullThenSupply(String, Supplier)} method.
+     * Tests {@link FunctionalUtils#ifBlankOrNullThenSupplyChain(String, Supplier)} method.
      */
     @Test
     @DisplayName("Test returning a function value when the string is blank or null")
-    void testIfBlankOrNullThenSupply() {
-        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifBlankOrNullThenSupply(null, () -> DEFAULT_VALUE).firstResult());
-        ResultChain result = FunctionalUtils.ifBlankOrNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE);
+    void testIfBlankOrNullThenSupplyChain() {
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifBlankOrNullThenSupplyChain(null, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifBlankOrNullThenSupplyChain(INITIAL_VALUE, () -> DEFAULT_VALUE);
         assertNull(result.firstResult());
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifBlankOrNullThenSupply(String, Supplier)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value when the string is blank or null")
+    void testIfBlankOrNullThenSupply() {
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifBlankOrNullThenSupply(null, () -> DEFAULT_VALUE));
+        assertNull(FunctionalUtils.ifBlankOrNullThenSupply(INITIAL_VALUE, () -> DEFAULT_VALUE));
     }
 
     /**
@@ -173,7 +314,7 @@ class FunctionalUtilsTest {
     }
 
     /**
-     * Tests {@link FunctionalUtils#ifNotBlankOrNullThenApply(String, Function)} method.
+     * Tests {@link FunctionalUtils#ifNotBlankOrNullThenRun(String, Runnable)} method.
      */
     @Test
     @DisplayName("Test running a function if the input is not blank or null")
@@ -229,17 +370,30 @@ class FunctionalUtilsTest {
     }
 
     /**
-     * Tests {@link FunctionalUtils#ifEmptyOrNullThenSupply(Collection, Supplier)} method.
+     * Tests {@link FunctionalUtils#ifEmptyOrNullThenSupplyChain(Collection, Supplier)} method.
      */
     @Test
     @DisplayName("Test returning a function value when the collection is empty or null")
+    void testIfEmptyOrNullThenSupplyChain() {
+        List<String> initialList = WrapperList.of(INITIAL_VALUE);
+        List<String> emptyList = Collections.emptyList();
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifEmptyOrNullThenSupplyChain(null, () -> DEFAULT_VALUE).firstResult());
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifEmptyOrNullThenSupplyChain(emptyList, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifEmptyOrNullThenSupplyChain(initialList, () -> DEFAULT_VALUE);
+        assertNull(result.firstResult());
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifEmptyOrNullThenSupply(Collection, Supplier)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value when the collection is empty or null")
     void testIfEmptyOrNullThenSupply() {
         List<String> initialList = WrapperList.of(INITIAL_VALUE);
         List<String> emptyList = Collections.emptyList();
-        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifEmptyOrNullThenSupply(null, () -> DEFAULT_VALUE).firstResult());
-        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifEmptyOrNullThenSupply(emptyList, () -> DEFAULT_VALUE).firstResult());
-        ResultChain result = FunctionalUtils.ifEmptyOrNullThenSupply(initialList, () -> DEFAULT_VALUE);
-        assertNull(result.firstResult());
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifEmptyOrNullThenSupply(null, () -> DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifEmptyOrNullThenSupply(emptyList, () -> DEFAULT_VALUE));
+        assertNull(FunctionalUtils.ifEmptyOrNullThenSupply(initialList, () -> DEFAULT_VALUE));
     }
 
     /**
@@ -260,7 +414,6 @@ class FunctionalUtilsTest {
      * Tests {@link FunctionalUtils#ifTrueThenReturn(boolean, Object)} method.
      */
     @Test
-    @SuppressWarnings("ConstantValue")
     @DisplayName("Test returning a value when the condition is true")
     void testIfTrueThenReturn() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenReturn(true, DEFAULT_VALUE));
@@ -271,7 +424,6 @@ class FunctionalUtilsTest {
      * Tests {@link FunctionalUtils#ifFalseThenReturn(boolean, Object)} method.
      */
     @Test
-    @SuppressWarnings("ConstantValue")
     @DisplayName("Test returning a value when the condition is false")
     void testIfFalseThenReturn() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenReturn(false, DEFAULT_VALUE));
@@ -315,14 +467,135 @@ class FunctionalUtilsTest {
     }
 
     /**
-     * Tests {@link FunctionalUtils#ifTrueThenSupply(boolean, Supplier)} method.
+     * Tests {@link FunctionalUtils#ifTrueThenSupplyChain(boolean, Supplier)} method.
      */
     @Test
     @DisplayName("Test returning a function value when the condition is true")
-    void testIfTrueThenSupply() {
-        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenSupply(true, () -> DEFAULT_VALUE).firstResult());
-        ResultChain result = FunctionalUtils.ifTrueThenSupply(false, () -> DEFAULT_VALUE);
+    void testIfTrueThenSupplyChain() {
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenSupplyChain(true, () -> DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifTrueThenSupplyChain(false, () -> DEFAULT_VALUE);
         assertNull(result.firstResult());
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenSupply(boolean, Supplier)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value when the condition is true")
+    void testIfTrueThenSupply() {
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenSupply(true, () -> DEFAULT_VALUE));
+        assertNull(FunctionalUtils.ifTrueThenSupply(false, () -> DEFAULT_VALUE));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Function)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (1 param)")
+    void testIfTrueThenApply1Param() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifTrueThenApply(false, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, BiFunction)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (2 param)")
+    void testIfTrueThenApply2Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifTrueThenApply(false,
+                INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, Object, TriFunction)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (3 param)")
+    void testIfTrueThenApply3Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifTrueThenApply(false,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, Object, Object, QuadFunction)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (4 param)")
+    void testIfTrueThenApply4Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifTrueThenApply(false,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, Object, Object, Object, QuinFunction)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (5 param)")
+    void testIfTrueThenApply5Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifTrueThenApply(false,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenConsume(boolean, Object, Consumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is true (1 param)")
+    void testIfTrueThenConsume1Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifTrueThenConsume(true, INITIAL_VALUE,
+                (String value) -> StringUtils.concatenate(value, INITIAL_VALUE)));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenConsume(boolean, Object, Object, BiConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is true (2 param)")
+    void testIfTrueThenConsume2Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifTrueThenConsume(true, INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenConsume(boolean, Object, Object, Object, TriConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is true (3 param)")
+    void testIfTrueThenConsume3Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifTrueThenConsume(true, INITIAL_VALUE, INITIAL_VALUE,
+                INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenConsume(boolean, Object, Object, Object, Object, QuadConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is true (4 param)")
+    void testIfTrueThenConsume4Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifTrueThenConsume(true, INITIAL_VALUE, INITIAL_VALUE,
+                INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenConsume(boolean, Object, Object, Object, Object, Object, QuinConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is true (5 param)")
+    void testIfTrueThenConsume5Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifTrueThenConsume(true, INITIAL_VALUE, INITIAL_VALUE,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
     }
 
     /**
@@ -340,14 +613,137 @@ class FunctionalUtilsTest {
     }
 
     /**
-     * Tests {@link FunctionalUtils#ifFalseThenSupply(boolean, Supplier)} method.
+     * Tests {@link FunctionalUtils#ifFalseThenSupplyChain(boolean, Supplier)} method.
      */
     @Test
     @DisplayName("Test returning a function value when the condition is false")
-    void testIfFalseThenSupply() {
-        ResultChain result = FunctionalUtils.ifFalseThenSupply(true, () -> DEFAULT_VALUE);
+    void testIfFalseThenSupplyChain() {
+        ResultChain result = FunctionalUtils.ifFalseThenSupplyChain(true, () -> DEFAULT_VALUE);
         assertNull(result.firstResult());
-        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenSupply(false,
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenSupplyChain(false,
                 () -> DEFAULT_VALUE).firstResult());
     }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenSupply(boolean, Supplier)} method.
+     */
+    @Test
+    @DisplayName("Test returning a value when the condition is false")
+    void testIfFalseThenSupply() {
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenSupply(false, () -> DEFAULT_VALUE));
+        assertNull(FunctionalUtils.ifFalseThenSupply(true, () -> DEFAULT_VALUE));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Function)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (1 param)")
+    void testIfFalseThenApply1Param() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifFalseThenApply(true, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, BiFunction)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (2 param)")
+    void testIfFalseThenApply2Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifFalseThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, TriFunction)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (3 param)")
+    void testIfFalseThenApply3Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifFalseThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, Object, QuadFunction)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (4 param)")
+    void testIfFalseThenApply4Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifFalseThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, Object, Object, QuinFunction)} method.
+     */
+    @Test
+    @DisplayName("Test running a function if condition is true with the given params (5 param)")
+    void testIfFalseThenApply5Param() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+        assertNull(FunctionalUtils.ifFalseThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenConsume(boolean, Object, Consumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is false (1 param)")
+    void testIfFalseThenConsume1Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifFalseThenConsume(false, INITIAL_VALUE,
+                (String value) -> StringUtils.concatenate(value, INITIAL_VALUE)));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenConsume(boolean, Object, Object, BiConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is false (2 param)")
+    void testIfFalseThenConsume2Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifFalseThenConsume(false, INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenConsume(boolean, Object, Object, Object, TriConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is false (3 param)")
+    void testIfFalseThenConsume3Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifFalseThenConsume(false, INITIAL_VALUE, INITIAL_VALUE, 
+                INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenConsume(boolean, Object, Object, Object, Object, QuadConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is false (4 param)")
+    void testIfFalseThenConsume4Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifFalseThenConsume(false, INITIAL_VALUE, INITIAL_VALUE, 
+                INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenConsume(boolean, Object, Object, Object, Object, Object, QuinConsumer)} method.
+     */
+    @Test
+    @DisplayName("Test consuming a function if condition is false (5 param)")
+    void testIfFalseThenConsume5Param() {
+        assertDoesNotThrow(() -> FunctionalUtils.ifFalseThenConsume(false, INITIAL_VALUE, INITIAL_VALUE, 
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+
 }

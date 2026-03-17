@@ -24,6 +24,7 @@ import static io.github.dokkaltek.util.JsonUtils.setObjectMapperInstance;
 import static io.github.dokkaltek.util.ReflectionUtils.getStaticField;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -229,6 +230,78 @@ class JsonUtilsTest {
         assertEquals(samplePojo.getName(), result.get(0).get("name").asText());
         assertNull(JsonUtils.readJSONArray(null));
         assertThrows(JSONException.class, () -> JsonUtils.readJSONArray(INVALID_JSON));
+    }
+
+    /**
+     * Test for {@link JsonUtils#getFieldAsString(JsonNode, String)} method.
+     */
+    @Test
+    @DisplayName("Test getting a field of a json as a string")
+    void testGetFieldAsString() {
+        JsonNode result = Objects.requireNonNull(JsonUtils.readJSON(SAMPLE_JSON_POJO));
+        assertEquals(samplePojo.getName(), JsonUtils.getFieldAsString(result, "name"));
+        assertNull(JsonUtils.getFieldAsString(result, "invalidField"));
+        assertNull(JsonUtils.getFieldAsString(null, "name"));
+    }
+
+    /**
+     * Test for {@link JsonUtils#getFieldAsInt(JsonNode, String)} method.
+     */
+    @Test
+    @DisplayName("Test getting a field of a json as an int")
+    void testGetFieldAsInt() {
+        JsonNode result = Objects.requireNonNull(JsonUtils.readJSON(SAMPLE_JSON_POJO));
+        assertEquals(samplePojo.getAge(), JsonUtils.getFieldAsInt(result, "age"));
+        assertNull(JsonUtils.getFieldAsInt(result, "invalidField"));
+        assertNull(JsonUtils.getFieldAsInt(null, "age"));
+    }
+
+    /**
+     * Test for {@link JsonUtils#getFieldAsDouble(JsonNode, String)} method.
+     */
+    @Test
+    @DisplayName("Test getting a field of a json as a double")
+    void testGetFieldAsDouble() {
+        JsonNode result = Objects.requireNonNull(JsonUtils.readJSON(SAMPLE_JSON_POJO));
+        assertEquals(samplePojo.getAge(), JsonUtils.getFieldAsDouble(result, "age"));
+        assertNull(JsonUtils.getFieldAsDouble(result, "invalidField"));
+        assertNull(JsonUtils.getFieldAsDouble(null, "age"));
+    }
+
+    /**
+     * Test for {@link JsonUtils#getFieldAsBoolean(JsonNode, String)} method.
+     */
+    @Test
+    @DisplayName("Test getting a field of a json as a boolean")
+    void testGetFieldAsBoolean() {
+        JsonNode result = Objects.requireNonNull(JsonUtils.readJSON("{\"isTrue\": true}"));
+        assertTrue(JsonUtils.getFieldAsBoolean(result, "isTrue"));
+        assertNull(JsonUtils.getFieldAsBoolean(result, "invalidField"));
+        assertNull(JsonUtils.getFieldAsBoolean(null, "isTrue"));
+    }
+
+    /**
+     * Test for {@link JsonUtils#getFieldAsLong(JsonNode, String)} method.
+     */
+    @Test
+    @DisplayName("Test getting a field of a json as a long")
+    void testGetFieldAsLong() {
+        JsonNode result = Objects.requireNonNull(JsonUtils.readJSON(SAMPLE_JSON_POJO));
+        assertEquals(samplePojo.getAge(), JsonUtils.getFieldAsLong(result, "age"));
+        assertNull(JsonUtils.getFieldAsLong(result, "invalidField"));
+        assertNull(JsonUtils.getFieldAsLong(null, "age"));
+    }
+
+    /**
+     * Test for {@link JsonUtils#getFieldAsOptional(JsonNode, String)} method.
+     */
+    @Test
+    @DisplayName("Test getting a field of a json as a optional")
+    void testGetFieldAsOptional() {
+        JsonNode result = Objects.requireNonNull(JsonUtils.readJSON(SAMPLE_JSON_POJO));
+        assertTrue(JsonUtils.getFieldAsOptional(result, "age").isPresent());
+        assertFalse(JsonUtils.getFieldAsOptional(result, "invalidField").isPresent());
+        assertFalse(JsonUtils.getFieldAsOptional(null, "description").isPresent());
     }
 
     /**

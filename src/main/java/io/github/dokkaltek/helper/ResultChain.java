@@ -216,6 +216,14 @@ public class ResultChain {
     }
 
     /**
+     * Gets the last result stored in the ResultChain.
+     * @return The last result if it exists, or null otherwise.
+     */
+    public <T> T get() {
+        return (T) results.lastOrNull();
+    }
+
+    /**
      * Gets the last result.
      * @return The last result if it exists, or null otherwise.
      */

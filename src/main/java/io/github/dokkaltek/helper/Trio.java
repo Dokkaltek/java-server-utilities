@@ -23,7 +23,7 @@ public class Trio<T, R, U> {
      * @param second The second object.
      * @return The built {@link Trio}.
      */
-    public Trio<T, R, U> of(T first, R second, U third) {
+    public static <X,Y,W> Trio<X, Y, W> of(X first, Y second, W third) {
         if (first == null) {
             throw new NullPointerException("First " + NULL_ERROR_MESSAGE);
         }
@@ -42,7 +42,7 @@ public class Trio<T, R, U> {
      * @param second The second object.
      * @return The built {@link Trio}.
      */
-    public Trio<T, R, U> ofNullable(T first, R second, U third) {
+    public static <X,Y,W> Trio<X, Y, W> ofNullable(X first, Y second, W third) {
         return new Trio<>(first, second, third);
     }
 
@@ -50,7 +50,7 @@ public class Trio<T, R, U> {
      * Returns an empty {@link Trio} object.
      * @return The empty {@link Trio}.
      */
-    public Trio<T, R, U> empty() {
+    public static <X,Y,W> Trio<X, Y, W> empty() {
         return new Trio<>(null, null, null);
     }
 

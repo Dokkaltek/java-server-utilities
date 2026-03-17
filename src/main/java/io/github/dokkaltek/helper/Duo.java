@@ -16,13 +16,7 @@ public class Duo<T, R> {
     private final T first;
     private final R second;
 
-    /**
-     * Default builder, which doesn't accept null values.
-     * @param first The first object.
-     * @param second The second object.
-     * @return The built {@link Duo}.
-     */
-    public Duo<T, R> of(T first, R second) {
+    public static <X, Y> Duo<X, Y> of(X first, Y second) {
         if (first == null) {
             throw new NullPointerException("First " + NULL_ERROR_MESSAGE);
         }
@@ -38,7 +32,7 @@ public class Duo<T, R> {
      * @param second The second object.
      * @return The built {@link Duo}.
      */
-    public Duo<T, R> ofNullable(T first, R second) {
+    public static <X, Y> Duo<X, Y> ofNullable(X first, Y second) {
         return new Duo<>(first, second);
     }
 
@@ -46,7 +40,7 @@ public class Duo<T, R> {
      * Returns an empty {@link Duo} object.
      * @return The empty {@link Duo}.
      */
-    public Duo<T, R> empty() {
+    public static <X, Y> Duo<X, Y> empty() {
         return new Duo<>(null, null);
     }
 
