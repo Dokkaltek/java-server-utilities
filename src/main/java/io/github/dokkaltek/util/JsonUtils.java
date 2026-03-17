@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.github.dokkaltek.util.StringUtils.isBlankOrNull;
 
@@ -276,6 +277,108 @@ public final class JsonUtils {
         } catch (JacksonException e) {
             throw new JSONException(e);
         }
+    }
+
+    /**
+     * Gets a field of a json as a string.
+     * @param node The node to get the field from.
+     * @param fieldName The field name to get.
+     * @return The field value as a string or null if the field does not exist.
+     */
+    public static String getFieldAsString(JsonNode node, String fieldName) {
+        if (node == null) {
+            return null;
+        }
+        JsonNode field = node.get(fieldName);
+        if (field == null || field.isMissingNode()) {
+            return null;
+        }
+        return node.get(fieldName).asString();
+    }
+
+    /**
+     * Gets a field of a json as an integer.
+     * @param node The node to get the field from.
+     * @param fieldName The field name to get.
+     * @return The field value as an integer or null if the field does not exist.
+     */
+    public static Integer getFieldAsInt(JsonNode node, String fieldName) {
+        if (node == null) {
+            return null;
+        }
+        JsonNode field = node.get(fieldName);
+        if (field == null || field.isMissingNode()) {
+            return null;
+        }
+        return node.get(fieldName).asInt();
+    }
+
+    /**
+     * Gets a field of a json as a boolean.
+     * @param node The node to get the field from.
+     * @param fieldName The field name to get.
+     * @return The field value as a boolean or null if the field does not exist.
+     */
+    public static Boolean getFieldAsBoolean(JsonNode node, String fieldName) {
+        if (node == null) {
+            return null;
+        }
+        JsonNode field = node.get(fieldName);
+        if (field == null || field.isMissingNode()) {
+            return null;
+        }
+        return node.get(fieldName).asBoolean();
+    }
+
+    /**
+     * Gets a field of a json as a double.
+     * @param node The node to get the field from.
+     * @param fieldName The field name to get.
+     * @return The field value as a double or null if the field does not exist.
+     */
+    public static Double getFieldAsDouble(JsonNode node, String fieldName) {
+        if (node == null) {
+            return null;
+        }
+        JsonNode field = node.get(fieldName);
+        if (field == null || field.isMissingNode()) {
+            return null;
+        }
+        return node.get(fieldName).asDouble();
+    }
+
+    /**
+     * Gets a field of a json as a long.
+     * @param node The node to get the field from.
+     * @param fieldName The field name to get.
+     * @return The field value as a long or null if the field does not exist.
+     */
+    public static Long getFieldAsLong(JsonNode node, String fieldName) {
+        if (node == null) {
+            return null;
+        }
+        JsonNode field = node.get(fieldName);
+        if (field == null || field.isMissingNode()) {
+            return null;
+        }
+        return node.get(fieldName).asLong();
+    }
+
+    /**
+     * Gets a field of a json as a long.
+     * @param node The node to get the field from.
+     * @param fieldName The field name to get.
+     * @return The field value as a long or null if the field does not exist.
+     */
+    public static Optional<JsonNode> getFieldAsOptional(JsonNode node, String fieldName) {
+        if (node == null) {
+            return Optional.empty();
+        }
+        JsonNode field = node.get(fieldName);
+        if (field == null || field.isMissingNode()) {
+            return Optional.empty();
+        }
+        return node.get(fieldName).asOptional();
     }
 
     /**

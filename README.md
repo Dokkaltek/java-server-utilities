@@ -36,12 +36,12 @@ This library tries to be lightweight without having too many transitive dependen
 - **MimeTypes** -> Holds most common MimeTypes for headers.
 
 ## Installation
-You just need to add the dependency to your pom:
+You just need to add the dependency to your pom if you are using Jackson version 2.x:
 
 ``` xml
 <dependency>
     <groupId>io.github.dokkaltek</groupId>
     <artifactId>server-utilities</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 </dependency>
 ```
