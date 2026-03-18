@@ -18,11 +18,13 @@ This library tries to be lightweight without having too many transitive dependen
 - **StringUtils** -> Check if objects are blank on java 8, capitalize the first letter of a string, repeat a string, truncate it, or switch its case.
 - **UriUtils** -> Join paths, get parts of a uri without having to cast it to URI explicitly, get the query parameters as a map, or update only one query param.
 - **ValidationUtils** -> Validate Strings to be in valid format for emails, date, json, url, uuid, DNI, NIE, or NIF.
+- **TimerUtils** -> Times code blocks with some simple timing methods.
 - **FunctionalUtils** -> Perform conditional checks with a more fluent API, or chain them.
 
 
 ### Helper classes
 - **Duo** and **Trio** -> Similar to `Pair` in Spring, or objects that hold 2 or 3 additional objects inside them.
+- **Timer** -> Allows you to time blocks of code to see how much time they spend.
 - **WrapperList** -> A wrapper over `ArrayList` for easier access to the last index of the list, the first and last elements, list creation, and other sugar syntax methods.
 
 ### Constants 
