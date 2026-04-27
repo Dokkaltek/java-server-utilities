@@ -437,6 +437,20 @@ public final class FunctionalUtils {
     }
 
     /**
+     * Returns the value if the condition is true, otherwise the default value.
+     * @param condition The condition to check.
+     * @param value The value to return if true.
+     * @param defaultValue The value to return if false.
+     * @return The value if the condition is true, otherwise the default value.
+     * @param <T> The type of the value.
+     */
+    public static <T> T ifTrueThenReturn(boolean condition, T value, T defaultValue) {
+        if (condition)
+            return value;
+        return defaultValue;
+    }
+
+    /**
      * Returns the value if the condition is false, otherwise null.
      * @param condition The condition to check.
      * @param value The value to return if false.
@@ -447,6 +461,20 @@ public final class FunctionalUtils {
         if (!condition)
             return value;
         return null;
+    }
+
+    /**
+     * Returns the value if the condition is false, otherwise the default value.
+     * @param condition The condition to check.
+     * @param value The value to return if false.
+     * @param defaultValue The value to return if true.
+     * @return The value if the condition is false, otherwise the default value.
+     * @param <T> The type of the value.
+     */
+    public static <T> T ifFalseThenReturn(boolean condition, T value, T defaultValue) {
+        if (!condition)
+            return value;
+        return defaultValue;
     }
 
     /**
@@ -484,7 +512,7 @@ public final class FunctionalUtils {
     /**
      * If the passed condition is true, it supplies the value returned by the passed function.
      * @param condition The condition to check.
-     * @param function The function to run if the condition is true.
+     * @param function The function to run for the value if the condition is true.
      * @return A {@link ResultChain} that allows chaining more methods, and holds the result of the function if
      * it was executed, or null otherwise.
      */
@@ -492,6 +520,20 @@ public final class FunctionalUtils {
         if (condition)
             return new ResultChain(function.get());
         return new ResultChain(null);
+    }
+
+    /**
+     * If the passed condition is true, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param function The function to run for the value if the condition is true.
+     * @param defaultValue The default value to return if the condition is false.
+     * @return A {@link ResultChain} that allows chaining more methods, and holds the result of the function if
+     * it was executed, or null otherwise.
+     */
+    public static <T> ResultChain ifTrueThenSupplyChain(boolean condition, Supplier<T> function, T defaultValue) {
+        if (condition)
+            return new ResultChain(function.get());
+        return new ResultChain(defaultValue);
     }
 
     /**
@@ -509,6 +551,19 @@ public final class FunctionalUtils {
     /**
      * If the passed condition is true, it supplies the value returned by the passed function.
      * @param condition The condition to check.
+     * @param function The function to run if the condition is true.
+     * @param defaultValue The default value to return if the condition is false.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T> T ifTrueThenSupply(boolean condition, Supplier<T> function, T defaultValue) {
+        if (condition)
+            return function.get();
+        return defaultValue;
+    }
+
+    /**
+     * If the passed condition is true, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
      * @param object The object to pass to the function.
      * @param function The function to run if the condition is true.
      * @return The result of the function if it was executed, or null otherwise.
@@ -517,6 +572,21 @@ public final class FunctionalUtils {
         if (condition)
             return function.apply(object);
         return null;
+    }
+
+    /**
+     * If the passed condition is true, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param function The function to run if the condition is true.
+     * @param defaultValue The default value to return if the condition is false.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R> T ifTrueThenApply(boolean condition, R object, Function<? super R, T> function,
+                                           T defaultValue) {
+        if (condition)
+            return function.apply(object);
+        return defaultValue;
     }
 
     /**
@@ -539,6 +609,23 @@ public final class FunctionalUtils {
      * @param condition The condition to check.
      * @param object The object to pass to the function.
      * @param object2 The second object to pass to the function.
+     * @param function The function to run if the condition is true.
+     * @param defaultValue The default value to return if the condition is false.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R, S> T ifTrueThenApply(boolean condition, R object, S object2,
+                                              BiFunction<? super R,? super S, T> function,
+                                              T defaultValue) {
+        if (condition)
+            return function.apply(object, object2);
+        return defaultValue;
+    }
+
+    /**
+     * If the passed condition is true, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param object2 The second object to pass to the function.
      * @param object3 The third object to pass to the function.
      * @param function The function to run if the condition is true.
      * @return The result of the function if it was executed, or null otherwise.
@@ -548,6 +635,24 @@ public final class FunctionalUtils {
         if (condition)
             return function.apply(object, object2, object3);
         return null;
+    }
+
+    /**
+     * If the passed condition is true, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param object2 The second object to pass to the function.
+     * @param object3 The third object to pass to the function.
+     * @param function The function to run if the condition is true.
+     * @param defaultValue The default value to return if the condition is false.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R, S, U> T ifTrueThenApply(boolean condition, R object, S object2, U object3,
+                                                 TriFunction<? super R,? super S, ? super U, T> function,
+                                                 T defaultValue) {
+        if (condition)
+            return function.apply(object, object2, object3);
+        return defaultValue;
     }
 
     /**
@@ -574,6 +679,25 @@ public final class FunctionalUtils {
      * @param object2 The second object to pass to the function.
      * @param object3 The third object to pass to the function.
      * @param object4 The fourth object to pass to the function.
+     * @param function The function to run if the condition is true.
+     * @param defaultValue The default value to return if the condition is false.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R, S, U, V> T ifTrueThenApply(boolean condition, R object, S object2, U object3, V object4,
+                                                 QuadFunction<? super R, ? super S, ? super U, ? super V, T> function,
+                                                 T defaultValue) {
+        if (condition)
+            return function.apply(object, object2, object3, object4);
+        return defaultValue;
+    }
+
+    /**
+     * If the passed condition is true, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param object2 The second object to pass to the function.
+     * @param object3 The third object to pass to the function.
+     * @param object4 The fourth object to pass to the function.
      * @param object5 The fifth object to pass to the function.
      * @param function The function to run if the condition is true.
      * @return The result of the function if it was executed, or null otherwise.
@@ -584,6 +708,26 @@ public final class FunctionalUtils {
         if (condition)
             return function.apply(object, object2, object3, object4, object5);
         return null;
+    }
+
+    /**
+     * If the passed condition is true, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param object2 The second object to pass to the function.
+     * @param object3 The third object to pass to the function.
+     * @param object4 The fourth object to pass to the function.
+     * @param object5 The fifth object to pass to the function.
+     * @param function The function to run if the condition is true.
+     * @param defaultValue The default value to return if the condition is false.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R, S, U, V, W> T ifTrueThenApply(boolean condition, R object, S object2, U object3, V object4,
+                                                       W object5, QuinFunction<? super R, ? super S, ? super U,
+                                                       ? super V, ? super W, T> function, T defaultValue) {
+        if (condition)
+            return function.apply(object, object2, object3, object4, object5);
+        return defaultValue;
     }
 
     /**
@@ -684,13 +828,40 @@ public final class FunctionalUtils {
     /**
      * If the passed condition is false, it supplies the value returned by the passed function.
      * @param condition The condition to check.
-     * @param function The function to run if the condition is false.
+     * @param function The function to run for the value if the condition is false.
+     * @param defaultValue The default value to return if the condition is true.
+     * @return A {@link ResultChain} that allows chaining more methods, and holds the result of the function if
+     * it was executed, or null otherwise.
+     */
+    public static <T> ResultChain ifFalseThenSupplyChain(boolean condition, Supplier<T> function, T defaultValue) {
+        if (!condition)
+            return new ResultChain(function.get());
+        return new ResultChain(defaultValue);
+    }
+
+    /**
+     * If the passed condition is false, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param function The function to run for the value if the condition is false.
      * @return The result of the function if it was executed, or null otherwise.
      */
     public static <T> T ifFalseThenSupply(boolean condition, Supplier<T> function) {
         if (!condition)
             return function.get();
         return null;
+    }
+
+    /**
+     * If the passed condition is false, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param function The function to run for the value if the condition is false.
+     * @param defaultValue The default value to return if the condition is true.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T> T ifFalseThenSupply(boolean condition, Supplier<T> function, T defaultValue) {
+        if (!condition)
+            return function.get();
+        return defaultValue;
     }
 
     /**
@@ -704,6 +875,21 @@ public final class FunctionalUtils {
         if (!condition)
             return function.apply(object);
         return null;
+    }
+
+    /**
+     * If the passed condition is false, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param function The function to run if the condition is false.
+     * @param defaultValue The default value to return if the condition is true.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R> T ifFalseThenApply(boolean condition, R object, Function<? super R, T> function,
+                                            T defaultValue) {
+        if (!condition)
+            return function.apply(object);
+        return defaultValue;
     }
 
     /**
@@ -726,6 +912,22 @@ public final class FunctionalUtils {
      * @param condition The condition to check.
      * @param object The object to pass to the function.
      * @param object2 The second object to pass to the function.
+     * @param function The function to run if the condition is false.
+     * @param defaultValue The default value to return if the condition is true.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R, S> T ifFalseThenApply(boolean condition, R object, S object2,
+                                               BiFunction<? super R,? super S, T> function, T defaultValue) {
+        if (!condition)
+            return function.apply(object, object2);
+        return defaultValue;
+    }
+
+    /**
+     * If the passed condition is false, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param object2 The second object to pass to the function.
      * @param object3 The third object to pass to the function.
      * @param function The function to run if the condition is false.
      * @return The result of the function if it was executed, or null otherwise.
@@ -735,6 +937,24 @@ public final class FunctionalUtils {
         if (!condition)
             return function.apply(object, object2, object3);
         return null;
+    }
+
+    /**
+     * If the passed condition is false, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param object2 The second object to pass to the function.
+     * @param object3 The third object to pass to the function.
+     * @param function The function to run if the condition is false.
+     * @param defaultValue The default value to return if the condition is true.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R, S, U> T ifFalseThenApply(boolean condition, R object, S object2, U object3,
+                                                  TriFunction<? super R,? super S, ? super U, T> function,
+                                                  T defaultValue) {
+        if (!condition)
+            return function.apply(object, object2, object3);
+        return defaultValue;
     }
 
     /**
@@ -761,16 +981,55 @@ public final class FunctionalUtils {
      * @param object2 The second object to pass to the function.
      * @param object3 The third object to pass to the function.
      * @param object4 The fourth object to pass to the function.
+     * @param function The function to run if the condition is false.
+     * @param defaultValue The default value to return if the condition is true.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R, S, U, V> T ifFalseThenApply(boolean condition, R object, S object2, U object3, V object4,
+                                                QuadFunction<? super R, ? super S, ? super U, ? super V, T> function,
+                                                T defaultValue) {
+        if (!condition)
+            return function.apply(object, object2, object3, object4);
+        return defaultValue;
+    }
+
+    /**
+     * If the passed condition is false, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param object2 The second object to pass to the function.
+     * @param object3 The third object to pass to the function.
+     * @param object4 The fourth object to pass to the function.
      * @param object5 The fifth object to pass to the function.
      * @param function The function to run if the condition is false.
      * @return The result of the function if it was executed, or null otherwise.
      */
     public static <T, R, S, U, V, W> T ifFalseThenApply(boolean condition, R object, S object2, U object3, V object4,
                                                        W object5, QuinFunction<? super R, ? super S, ? super U,
-                    ? super V, ? super W, T> function) {
+                                                       ? super V, ? super W, T> function) {
         if (!condition)
             return function.apply(object, object2, object3, object4, object5);
         return null;
+    }
+
+    /**
+     * If the passed condition is false, it supplies the value returned by the passed function.
+     * @param condition The condition to check.
+     * @param object The object to pass to the function.
+     * @param object2 The second object to pass to the function.
+     * @param object3 The third object to pass to the function.
+     * @param object4 The fourth object to pass to the function.
+     * @param object5 The fifth object to pass to the function.
+     * @param function The function to run if the condition is false.
+     * @param defaultValue The default value to return if the condition is true.
+     * @return The result of the function if it was executed, or null otherwise.
+     */
+    public static <T, R, S, U, V, W> T ifFalseThenApply(boolean condition, R object, S object2, U object3, V object4,
+                                                        W object5, QuinFunction<? super R, ? super S, ? super U,
+                                                        ? super V, ? super W, T> function, T defaultValue) {
+        if (!condition)
+            return function.apply(object, object2, object3, object4, object5);
+        return defaultValue;
     }
 
     /**
