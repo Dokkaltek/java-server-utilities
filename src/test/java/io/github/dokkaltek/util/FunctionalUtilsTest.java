@@ -421,6 +421,16 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifTrueThenReturn(boolean, Object, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value when the condition is true")
+    void testIfTrueThenReturnWithDefaultValue() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifTrueThenReturn(true, INITIAL_VALUE, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenReturn(false, INITIAL_VALUE, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifFalseThenReturn(boolean, Object)} method.
      */
     @Test
@@ -428,6 +438,16 @@ class FunctionalUtilsTest {
     void testIfFalseThenReturn() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenReturn(false, DEFAULT_VALUE));
         assertNull(FunctionalUtils.ifFalseThenReturn(true, DEFAULT_VALUE));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenReturn(boolean, Object, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value when the condition is false")
+    void testIfFalseThenReturnWithDefaultValue() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifFalseThenReturn(false, INITIAL_VALUE, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenReturn(true, INITIAL_VALUE, DEFAULT_VALUE));
     }
 
     /**
@@ -478,6 +498,18 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifTrueThenSupplyChain(boolean, Supplier, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default function value when the condition is true")
+    void testIfTrueThenSupplyChainWithDefaultValue() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifTrueThenSupplyChain(true,
+                () -> INITIAL_VALUE, DEFAULT_VALUE).firstResult());
+        ResultChain result = FunctionalUtils.ifTrueThenSupplyChain(false, () -> INITIAL_VALUE, DEFAULT_VALUE);
+        assertEquals(DEFAULT_VALUE, result.firstResult());
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifTrueThenSupply(boolean, Supplier)} method.
      */
     @Test
@@ -485,6 +517,16 @@ class FunctionalUtilsTest {
     void testIfTrueThenSupply() {
         assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenSupply(true, () -> DEFAULT_VALUE));
         assertNull(FunctionalUtils.ifTrueThenSupply(false, () -> DEFAULT_VALUE));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenSupply(boolean, Supplier, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value when the condition is true")
+    void testIfTrueThenSupplyWithDefaultValue() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifTrueThenSupply(true, () -> INITIAL_VALUE, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenSupply(false, () -> INITIAL_VALUE, DEFAULT_VALUE));
     }
 
     /**
@@ -498,6 +540,18 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Function, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is true with the given params (1 param)")
+    void testIfTrueThenApply1ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenApply(false, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, BiFunction)} method.
      */
     @Test
@@ -507,6 +561,19 @@ class FunctionalUtilsTest {
                 FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
         assertNull(FunctionalUtils.ifTrueThenApply(false,
                 INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, BiFunction, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is true with the given params (2 param)")
+    void testIfTrueThenApply2ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE, FunctionalUtils.ifTrueThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenApply(false, INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
     }
 
     /**
@@ -523,6 +590,21 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, Object, TriFunction, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is true with the given params (3 param)")
+    void testIfTrueThenApply3ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifTrueThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenApply(false,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, Object, Object, QuadFunction)} method.
      */
     @Test
@@ -536,6 +618,20 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, Object, Object, QuadFunction, Object)}
+     * method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is true with the given params (4 param)")
+    void testIfTrueThenApply4ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenApply(false,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, StringUtils::concatenate, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, Object, Object, Object, QuinFunction)} method.
      */
     @Test
@@ -546,6 +642,21 @@ class FunctionalUtilsTest {
                         INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
         assertNull(FunctionalUtils.ifTrueThenApply(false,
                 INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifTrueThenApply(boolean, Object, Object, Object, Object, Object, QuinFunction,
+     * Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is true with the given params (5 param)")
+    void testIfTrueThenApply5ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifTrueThenApply(true, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifTrueThenApply(false,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate,
+                DEFAULT_VALUE));
     }
 
     /**
@@ -625,6 +736,18 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifFalseThenSupplyChain(boolean, Supplier, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value when the condition is false")
+    void testIfFalseThenSupplyChainWithDefaultValue() {
+        ResultChain result = FunctionalUtils.ifFalseThenSupplyChain(true, () -> INITIAL_VALUE, DEFAULT_VALUE);
+        assertEquals(DEFAULT_VALUE, result.firstResult());
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifFalseThenSupplyChain(false,
+                () -> INITIAL_VALUE, DEFAULT_VALUE).firstResult());
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifFalseThenSupply(boolean, Supplier)} method.
      */
     @Test
@@ -635,20 +758,42 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifFalseThenSupply(boolean, Supplier, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value when the condition is false")
+    void testIfFalseThenSupplyWithDefaultValue() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifFalseThenSupply(false, () -> INITIAL_VALUE, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenSupply(true, () -> INITIAL_VALUE, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Function)} method.
      */
     @Test
-    @DisplayName("Test running a function if condition is true with the given params (1 param)")
+    @DisplayName("Test running a function if condition is false with the given params (1 param)")
     void testIfFalseThenApply1Param() {
         assertEquals(INITIAL_VALUE, FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, StringUtils::concatenate));
         assertNull(FunctionalUtils.ifFalseThenApply(true, INITIAL_VALUE, StringUtils::concatenate));
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Function, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is false with the given params (1 param)")
+    void testIfFalseThenApply1ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE, FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenApply(true, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, BiFunction)} method.
      */
     @Test
-    @DisplayName("Test running a function if condition is true with the given params (2 param)")
+    @DisplayName("Test running a function if condition is false with the given params (2 param)")
     void testIfFalseThenApply2Param() {
         assertEquals(INITIAL_VALUE + INITIAL_VALUE,
                 FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
@@ -657,10 +802,23 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, BiFunction, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is false with the given params (2 param)")
+    void testIfFalseThenApply2ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE,
+                        StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, TriFunction)} method.
      */
     @Test
-    @DisplayName("Test running a function if condition is true with the given params (3 param)")
+    @DisplayName("Test running a function if condition is false with the given params (3 param)")
     void testIfFalseThenApply3Param() {
         assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
                 FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
@@ -670,10 +828,23 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, TriFunction, Object)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is false with the given params (3 param)")
+    void testIfFalseThenApply3ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, Object, QuadFunction)} method.
      */
     @Test
-    @DisplayName("Test running a function if condition is true with the given params (4 param)")
+    @DisplayName("Test running a function if condition is false with the given params (4 param)")
     void testIfFalseThenApply4Param() {
         assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
                 FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
@@ -683,16 +854,44 @@ class FunctionalUtilsTest {
     }
 
     /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, Object, QuadFunction, Object)}
+     * method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is false with the given params (4 param)")
+    void testIfFalseThenApply4ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, StringUtils::concatenate, DEFAULT_VALUE));
+    }
+
+    /**
      * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, Object, Object, QuinFunction)} method.
      */
     @Test
-    @DisplayName("Test running a function if condition is true with the given params (5 param)")
+    @DisplayName("Test running a function if condition is false with the given params (5 param)")
     void testIfFalseThenApply5Param() {
         assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
                 FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
                         INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
         assertNull(FunctionalUtils.ifFalseThenApply(true,
                 INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
+    }
+
+    /**
+     * Tests {@link FunctionalUtils#ifFalseThenApply(boolean, Object, Object, Object, Object, Object, QuinFunction)} method.
+     */
+    @Test
+    @DisplayName("Test returning a default value if condition is false with the given params (5 param)")
+    void testIfFalseThenApply5ParamWithDefaultValue() {
+        assertEquals(INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE + INITIAL_VALUE,
+                FunctionalUtils.ifFalseThenApply(false, INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,
+                        INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate, DEFAULT_VALUE));
+        assertEquals(DEFAULT_VALUE, FunctionalUtils.ifFalseThenApply(true,
+                INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE,INITIAL_VALUE, INITIAL_VALUE,
+                StringUtils::concatenate, DEFAULT_VALUE));
     }
 
     /**
@@ -744,6 +943,4 @@ class FunctionalUtilsTest {
         assertDoesNotThrow(() -> FunctionalUtils.ifFalseThenConsume(false, INITIAL_VALUE, INITIAL_VALUE, 
                 INITIAL_VALUE, INITIAL_VALUE, INITIAL_VALUE, StringUtils::concatenate));
     }
-
-
 }
