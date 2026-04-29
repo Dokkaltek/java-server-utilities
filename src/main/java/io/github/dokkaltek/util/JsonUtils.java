@@ -1,11 +1,13 @@
 package io.github.dokkaltek.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 import io.github.dokkaltek.exception.InvalidInputException;
 import io.github.dokkaltek.exception.JSONException;
@@ -13,7 +15,9 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
 
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,7 +63,7 @@ public final class JsonUtils {
         try {
             objectMapper.readTree(json);
             return true;
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             return false;
         }
     }
@@ -75,7 +79,7 @@ public final class JsonUtils {
 
         try {
             objectMapper.readTree(json);
-        } catch (JsonProcessingException | IllegalArgumentException e) {
+        } catch (JacksonException | IllegalArgumentException e) {
             throw new JSONException(e);
         }
     }
@@ -91,7 +95,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -108,7 +112,7 @@ public final class JsonUtils {
             return defaultValue;
         try {
             return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.info(String.format("Error converting object to json string, returning default value '%s' instead.",
                     defaultValue));
             return defaultValue;
@@ -128,7 +132,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(json, clazz);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -149,7 +153,7 @@ public final class JsonUtils {
 
         try {
             return objectMapper.readValue(json, clazz);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.info(String.format("Error converting json string to object, returning default value '%s' instead.",
                     defaultValue));
             return defaultValue;
@@ -162,12 +166,12 @@ public final class JsonUtils {
      * @return The byte array representation of the object.
      * @throws JSONException If the object cannot be converted.
      */
-    public static byte[] convertObjectToBytes(Object json) {
+    public static <T> byte[] convertObjectToBytes(T json) {
         if (json == null)
             return new byte[]{};
         try {
             return objectMapper.writeValueAsBytes(json);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -183,7 +187,7 @@ public final class JsonUtils {
         try {
             TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
             return objectMapper.readValue(json, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -215,7 +219,7 @@ public final class JsonUtils {
         try {
             TypeReference<ArrayList<T>> typeRef = new TypeReference<ArrayList<T>>() {};
             return objectMapper.readValue(json, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -223,6 +227,7 @@ public final class JsonUtils {
     /**
      * Converts a json string to an object of a parametrized type.
      * @param json The json string to convert.
+     * @param typeRef the {@link TypeReference} to use.
      * @return The parametrized type representation of the json string.
      */
     public static <T> T convertJSONToParametrizedType(String json, TypeReference<T> typeRef) {
@@ -230,7 +235,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(json, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -255,6 +260,172 @@ public final class JsonUtils {
     }
 
     /**
+     * Converts a byte array to an object. If the byte array is null, empty, or invalid, it returns the default value.
+     * @param byteArray The byte array to convert.
+     * @param clazz The class to convert the byte array to.
+     * @return The instance of the class from the byte array.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> T parseByteArrayOrElse(byte[] byteArray, Class<T> clazz, T defaultValue) {
+        if (byteArray == null || byteArray.length == 0)
+            return defaultValue;
+        try {
+            return objectMapper.readValue(byteArray, clazz);
+        } catch (IOException e) {
+            log.info(String.format("Error converting json bytes to object, returning default value '%s' instead.",
+                    defaultValue));
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Converts a byte array to a list of the return type. If the byte array is null or empty it returns an empty list.
+     * @param byteArray The byte array to convert.
+     * @return The instance of the class from the byte array.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> List<T> parseByteArrayToList(byte[] byteArray) {
+        if (byteArray == null || byteArray.length == 0)
+            return Collections.emptyList();
+        try {
+            TypeReference<ArrayList<T>> typeRef = new TypeReference<ArrayList<T>>() {};
+            return objectMapper.readValue(byteArray, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts a byte array to a map of the return type. If the byte array is null or empty it returns an empty map.
+     * @param byteArray The byte array to convert.
+     * @return The instance of the class from the byte array.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> Map<String, T> parseByteArrayToMap(byte[] byteArray) {
+        if (byteArray == null || byteArray.length == 0)
+            return Collections.emptyMap();
+        try {
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
+            return objectMapper.readValue(byteArray, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts a byte array to a parametrized object. If the byte array is null or empty it returns null.
+     * @param byteArray The byte array to convert.
+     * @param typeRef the {@link TypeReference} to use.
+     * @return The instance of the class from the byte array.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> T parseByteArrayToParametrizedType(byte[] byteArray, TypeReference<T> typeRef) {
+        if (byteArray == null || byteArray.length == 0)
+            return null;
+        try {
+            return objectMapper.readValue(byteArray, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts an input stream to an object. If the input stream is null or empty it returns null.
+     * @param stream The input stream to convert.
+     * @param clazz The class to convert the input stream to.
+     * @return The instance of the class from the input stream.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> T parseInputStream(InputStream stream, Class<T> clazz) {
+        if (stream == null)
+            return null;
+        try {
+            return objectMapper.readValue(stream, clazz);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts an input stream to an object. If the input stream is null, empty, or invalid, it returns the default.
+     * @param stream The input stream to convert.
+     * @param clazz The class to convert the input stream to.
+     * @param defaultValue The value to return in case of null or error.
+     * @return The instance of the class from the input stream.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> T parseInputStreamOrElse(InputStream stream, Class<T> clazz, T defaultValue) {
+        if (stream == null)
+            return defaultValue;
+        try {
+            return objectMapper.readValue(stream, clazz);
+        } catch (IOException e) {
+            log.info(String.format("Error converting json input stream to object, " +
+                            "returning default value '%s' instead.", defaultValue));
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Converts an input stream to a list. If the input stream is null it returns an empty list.
+     * @param stream The input stream to convert.
+     * @return The instance of the class from the input stream.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> List<T> parseInputStreamToList(InputStream stream) {
+        if (stream == null)
+            return Collections.emptyList();
+        try {
+            TypeReference<ArrayList<T>> typeRef = new TypeReference<ArrayList<T>>() {};
+            return objectMapper.readValue(stream, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts an input stream to a map. If the input stream is null it returns an empty map.
+     * @param stream The input stream to convert.
+     * @return The instance of the class from the input stream.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> Map<String, T> parseInputStreamToMap(InputStream stream) {
+        if (stream == null)
+            return Collections.emptyMap();
+        try {
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
+            return objectMapper.readValue(stream, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Converts an input stream to a parametrized type. If the input stream is null it returns null.
+     * @param stream The input stream to convert.
+     * @return The instance of the class from the input stream.
+     * @param <T> The class type of the return object.
+     * @throws JSONException If the object cannot be converted.
+     */
+    public static <T> T parseInputStreamToParametrizedType(InputStream stream, TypeReference<T> typeRef) {
+        if (stream == null)
+            return null;
+        try {
+            return objectMapper.readValue(stream, typeRef);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
      * Reads a json and converts it into a {@link JsonNode}. It returns null if the json is null or empty.
      * You can then read any field using the methods of the {@link JsonNode} class, like:
      * <ul>
@@ -273,9 +444,157 @@ public final class JsonUtils {
 
         try {
             return objectMapper.readTree(json);
+        } catch (JacksonException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Reads a json and converts it into a {@link JsonNode}. It returns null if the json is null or empty.
+     * You can then read any field using the methods of the {@link JsonNode} class, like:
+     * <ul>
+     *     <li>{@link JsonNode#get(String)}</li> -> Gets one value directly at the highest level of the json.
+     *     <li>{@link JsonNode#get(String)}.asText()</li> -> Gets a value as a certain type.
+     *     <li>{@link JsonNode#findValue(String)}</li> -> Finds the first occurrence of a value in the json.
+     *     <li>{@link JsonNode#findValues(String)}</li> -> Finds all occurrences of a value in the json.
+     * </ul>
+     *
+     * @param jsonBytes The json bytes to read.
+     * @return The {@link JsonNode} representation.
+     */
+    public static JsonNode readJSON(byte[] jsonBytes) {
+        if (jsonBytes == null || jsonBytes.length == 0)
+            return null;
+
+        try {
+            return objectMapper.readTree(jsonBytes);
         } catch (IOException e) {
             throw new JSONException(e);
         }
+    }
+
+    /**
+     * Reads a json and converts it into a {@link JsonNode}. It returns null if the json is null or empty.
+     * You can then read any field using the methods of the {@link JsonNode} class, like:
+     * <ul>
+     *     <li>{@link JsonNode#get(String)}</li> -> Gets one value directly at the highest level of the json.
+     *     <li>{@link JsonNode#get(String)}.asText()</li> -> Gets a value as a certain type.
+     *     <li>{@link JsonNode#findValue(String)}</li> -> Finds the first occurrence of a value in the json.
+     *     <li>{@link JsonNode#findValues(String)}</li> -> Finds all occurrences of a value in the json.
+     * </ul>
+     *
+     * @param jsonStream The json stream to read.
+     * @return The {@link JsonNode} representation.
+     */
+    public static JsonNode readJSON(InputStream jsonStream) {
+        if (jsonStream == null)
+            return null;
+
+        try {
+            return objectMapper.readTree(jsonStream);
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Reads a json and converts it into an {@link ArrayNode} if it is an array. It returns null if the json is null,
+     * blank, or not an array.
+     * You can then read any field using the methods of the {@link ArrayNode} class, like:
+     * <ul>
+     *     <li>{@link ArrayNode#get(int)}</li> -> Gets one value directly at the highest level of the json.
+     *     <li>{@link ArrayNode#get(int)}.asText()</li> -> Gets a value as a certain type.
+     *     <li>{@link ArrayNode#findValue(String)}</li> -> Finds the first occurrence of a value in the json.
+     *     <li>{@link ArrayNode#findValues(String)}</li> -> Finds all occurrences of a value in the json.
+     * </ul>
+     *
+     * @param json The json string to read.
+     * @return The {@link ArrayNode} representation.
+     */
+    public static ArrayNode readJSONArray(String json) {
+        if (isBlankOrNull(json))
+            return null;
+
+        try {
+            JsonNode tree = objectMapper.readTree(json);
+            if (!tree.isArray())
+                return null;
+            return (ArrayNode) tree;
+        } catch (JacksonException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Reads a byte array and converts it into an {@link ArrayNode} if it is an array. It returns null if the
+     * byte array is null or empty, or if it is not an array.
+     * You can then read any field using the methods of the {@link ArrayNode} class, like:
+     * <ul>
+     *     <li>{@link ArrayNode#get(int)}</li> -> Gets one value directly at the highest level of the json.
+     *     <li>{@link ArrayNode#get(int)}.asText()</li> -> Gets a value as a certain type.
+     *     <li>{@link ArrayNode#findValue(String)}</li> -> Finds the first occurrence of a value in the json.
+     *     <li>{@link ArrayNode#findValues(String)}</li> -> Finds all occurrences of a value in the json.
+     * </ul>
+     *
+     * @param jsonBytes The byte array to read.
+     * @return The {@link ArrayNode} representation.
+     */
+    public static ArrayNode readJSONArray(byte[] jsonBytes) {
+        if (jsonBytes == null || jsonBytes.length == 0)
+            return null;
+
+        try {
+            JsonNode tree = objectMapper.readTree(jsonBytes);
+            if (!tree.isArray())
+                return null;
+            return (ArrayNode) tree;
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Reads an input stream and converts it into an {@link ArrayNode} if it is an array. It returns null if the
+     * input stream is null, or if it is not an array.
+     * You can then read any field using the methods of the {@link ArrayNode} class, like:
+     * <ul>
+     *     <li>{@link ArrayNode#get(int)}</li> -> Gets one value directly at the highest level of the json.
+     *     <li>{@link ArrayNode#get(int)}.asText()</li> -> Gets a value as a certain type.
+     *     <li>{@link ArrayNode#findValue(String)}</li> -> Finds the first occurrence of a value in the json.
+     *     <li>{@link ArrayNode#findValues(String)}</li> -> Finds all occurrences of a value in the json.
+     * </ul>
+     *
+     * @param stream The input stream to read.
+     * @return The {@link ArrayNode} representation.
+     */
+    public static ArrayNode readJSONArray(InputStream stream) {
+        if (stream == null)
+            return null;
+
+        try {
+            JsonNode tree = objectMapper.readTree(stream);
+            if (!tree.isArray())
+                return null;
+            return (ArrayNode) tree;
+        } catch (IOException e) {
+            throw new JSONException(e);
+        }
+    }
+
+    /**
+     * Creates an empty {@link ObjectNode}.
+     * @return The empty node.
+     */
+    public static ObjectNode createObjectNode() {
+        return objectMapper.createObjectNode();
+    }
+
+    /**
+     * Creates an empty {@link ArrayNode}.
+     * @return The empty node.
+     */
+    public static ArrayNode createArrayNode() {
+        return objectMapper.createArrayNode();
     }
 
     /**
@@ -381,34 +700,6 @@ public final class JsonUtils {
     }
 
     /**
-     * Reads a json and converts it into an {@link ArrayNode} if it is an array. It returns null if the json is null,
-     * blank, or not an array.
-     * You can then read any field using the methods of the {@link ArrayNode} class, like:
-     * <ul>
-     *     <li>{@link ArrayNode#get(int)}</li> -> Gets one value directly at the highest level of the json.
-     *     <li>{@link ArrayNode#get(int)}.asText()</li> -> Gets a value as a certain type.
-     *     <li>{@link ArrayNode#findValue(String)}</li> -> Finds the first occurrence of a value in the json.
-     *     <li>{@link ArrayNode#findValues(String)}</li> -> Finds all occurrences of a value in the json.
-     * </ul>
-     *
-     * @param json The json string to read.
-     * @return The {@link ArrayNode} representation.
-     */
-    public static ArrayNode readJSONArray(String json) {
-        if (isBlankOrNull(json))
-            return null;
-
-        try {
-            JsonNode tree = objectMapper.readTree(json);
-            if (!tree.isArray())
-                return null;
-            return (ArrayNode) tree;
-        } catch (IOException e) {
-            throw new JSONException(e);
-        }
-    }
-
-    /**
      * Creates a deep copy of an object using Jackson library.
      * @param object The object to clone.
      * @return The cloned object.
@@ -430,10 +721,7 @@ public final class JsonUtils {
      * Initializes the default object mapper.
      * @return The default object mapper.
      */
-    private static ObjectMapper initObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return objectMapper;
+    private static JsonMapper initObjectMapper() {
+        return JsonMapper.builder().findAndAddModules().build();
     }
 }
