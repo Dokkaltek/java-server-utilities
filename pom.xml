@@ -6,7 +6,7 @@
 
     <groupId>io.github.dokkaltek</groupId>
     <artifactId>server-utilities</artifactId>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
     <packaging>jar</packaging>
 
     <name>Java server utilities</name>
@@ -41,7 +41,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Dependency versions -->
-        <jackson.version>3.1.0</jackson.version>
+        <jackson.version>3.1.2</jackson.version>
         <owasp-encoder.version>1.4.0</owasp-encoder.version>
         <junit.version>5.14.3</junit.version>
         <mockito.version>5.23.0</mockito.version>
