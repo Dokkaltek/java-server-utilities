@@ -17,6 +17,8 @@ import java.time.OffsetDateTime;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -33,7 +35,7 @@ import static io.github.dokkaltek.util.StringUtils.isBlankOrNull;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DateUtils {
-    private static final String DATE_TIME_FORMATTER_PATTERN = "yyyy-MM-dd[[ ]['T']HH:mm[:ss[.SSS]]]";
+    private static final String DATE_TIME_FORMATTER_PATTERN = "yyyy-MM-dd[[ ]['T']HH:mm[:ss]]";
     private static final int ISO_INSTANT_LENGTH_WITHOUT_MILLIS = 23;
 
     /**
@@ -129,29 +131,63 @@ public final class DateUtils {
             return null;
 
         // Add default time if missing
+        date = date.trim();
         if (!date.contains(":")) {
             date += " 00:00:00";
         }
 
         try {
-            // Add the offset if it didn't have one already
-            String offset = "";
-            if (date.contains("Z")) {
-                date = date.replace("Z", "");
-                offset = " " + ZoneOffset.UTC.toString().replace(SpecialChars.COLON, SpecialChars.EMPTY_STRING);
+            boolean hasSpecificOffset = checkIfISOLikeDateHasOffset(date);
+
+            if (hasSpecificOffset) {
+                int offsetStarterIndex;
+                if (date.contains(SpecialChars.PLUS)) {
+                    offsetStarterIndex = date.indexOf(SpecialChars.PLUS);
+                } else {
+                    offsetStarterIndex = date.lastIndexOf(SpecialChars.MINUS);
+                }
+                String offset = date.substring(offsetStarterIndex);
+                if (!offset.contains(SpecialChars.COLON)) {
+                    offset = offset.substring(0, 3) + SpecialChars.COLON + offset.substring(3);
+                    date = date.substring(0, offsetStarterIndex) + offset;
+                }
             }
 
-
-            if (date.length() > 10 && !date.substring(10).contains("+") &&
-                    !date.substring(10).contains("-")) {
-                offset = " " + getDefaultOffset().toString().replace(SpecialChars.COLON, SpecialChars.EMPTY_STRING);
+            if (!date.endsWith(Letters.Z.name()) && !hasSpecificOffset) {
+                date = date.trim() + getDefaultOffset().toString();
             }
 
-            return OffsetDateTime.parse(date.trim() + offset,
-                    DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER_PATTERN + "[ ]Z"));
+            return OffsetDateTime.parse(date.trim(),
+                    new DateTimeFormatterBuilder()
+                            .appendPattern(DATE_TIME_FORMATTER_PATTERN)
+                            .appendFraction(ChronoField.MILLI_OF_SECOND, 0, 9, true)
+                            .parseLenient()
+                            .appendOffset("+HH:mm", "Z")
+                            .toFormatter());
         } catch (DateTimeException e) {
             throw new DateConversionException(e);
         }
+    }
+
+    /**
+     * Gets a {@link LocalDateTime} from a string in <code>yyyy-MM-dd[[ ]['T']HH:mm[:ss[.SSS]]]</code> format.
+     * <br>
+     * If it has a <code>Z</code> in the date, it tries to adjust it to the default local time zone. To prevent this
+     * you can use the method that passes a boolean as a second parameter.
+     * <br><br>
+     * Example input values:
+     * <ul>
+     *     <li>2020-05-01</li>
+     *     <li>2020-05-01 05:20</li>
+     *     <li>2020-05-01 05:20:11</li>
+     *     <li>2020-05-01 05:20:11.321</li>
+     *     <li>2020-05-01T05:20:11.321</li>
+     * </ul>
+     * @param date The date string to convert to a {@link LocalDateTime}.
+     * @return The {@link LocalDateTime} parsed from the string.
+     */
+    public static LocalDateTime parseLocalDateTime(String date) {
+        return parseLocalDateTime(date, true);
     }
 
     /**
@@ -166,19 +202,43 @@ public final class DateUtils {
      *     <li>2020-05-01T05:20:11.321</li>
      * </ul>
      * @param date The date string to convert to a {@link LocalDateTime}.
+     * @param adjustOffsetInUTCDates If there is a 'Z' in the date it doesn't try to adjust the time with
+     *                        the local offset.
      * @return The {@link LocalDateTime} parsed from the string.
      */
-    public static LocalDateTime parseLocalDateTime(String date) {
+    public static LocalDateTime parseLocalDateTime(String date, boolean adjustOffsetInUTCDates) {
         if (isBlankOrNull(date))
             return null;
 
         // Add default time if missing
-        if (!date.contains(":")) {
+        date = date.trim();
+        if (!date.contains(SpecialChars.COLON)) {
             date += " 00:00:00";
         }
 
+        boolean hasSpecificOffset = checkIfISOLikeDateHasOffset(date);
+        boolean hasUTCOffset = date.endsWith(Letters.Z.name());
+        int offsetSeconds = 0;
+        if (hasUTCOffset) {
+            date = date.substring(0, date.length() - 1);
+            offsetSeconds = adjustOffsetInUTCDates ? getDefaultOffset().getTotalSeconds() : 0;
+        } else if (hasSpecificOffset) {
+            int offsetStarterIndex;
+            if (date.contains(SpecialChars.PLUS)) {
+                offsetStarterIndex = date.indexOf(SpecialChars.PLUS);
+            } else {
+                offsetStarterIndex = date.lastIndexOf(SpecialChars.MINUS);
+            }
+            date = date.substring(0, offsetStarterIndex);
+        }
+
         try {
-            return LocalDateTime.parse(date, DateTimeFormatter.ofPattern(DATE_TIME_FORMATTER_PATTERN));
+            return LocalDateTime.parse(date,
+                    new DateTimeFormatterBuilder()
+                            .appendPattern(DATE_TIME_FORMATTER_PATTERN)
+                            .appendFraction(ChronoField.MILLI_OF_SECOND, 0, 9, true)
+                            .parseLenient()
+                            .toFormatter()).plusSeconds(offsetSeconds);
         } catch (DateTimeException e) {
             throw new DateConversionException(e);
         }
@@ -214,7 +274,7 @@ public final class DateUtils {
     }
 
     /**
-     * Gets a {@link LocalTime} from a string in <code>HH:mm[:ss]</code> format.
+     * Gets a {@link LocalTime} from a string in <code>HH:mm[:ss[:SSS]]</code> format.
      * @param date The date string to convert to a {@link LocalTime}.
      * @return The {@link LocalTime} parsed from the string.
      */
@@ -223,7 +283,11 @@ public final class DateUtils {
             return null;
 
         try {
-            return LocalTime.parse(date, DateTimeFormatter.ISO_LOCAL_TIME);
+            return LocalTime.parse(date, new DateTimeFormatterBuilder()
+                            .appendPattern("HH:mm[:ss]")
+                            .appendFraction(ChronoField.MILLI_OF_SECOND, 0, 9, true)
+                            .parseLenient()
+                            .toFormatter());
         } catch (DateTimeException e) {
             throw new DateConversionException(e);
         }
@@ -687,5 +751,15 @@ public final class DateUtils {
         }
 
         return dateString;
+    }
+
+    /**
+     * Checks if a date string has an offset.
+     * @param date The date to check.
+     * @return If it has or not an offset.
+     */
+    private static boolean checkIfISOLikeDateHasOffset(String date) {
+        return date.length() > 10 &&
+                (date.lastIndexOf(SpecialChars.MINUS) > 10 || date.contains(SpecialChars.PLUS));
     }
 }

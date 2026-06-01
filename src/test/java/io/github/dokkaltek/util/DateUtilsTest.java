@@ -126,7 +126,15 @@ class DateUtilsTest {
     @Test
     @DisplayName("Test string to offset date time")
     void testParseOffsetDateTime() {
-        OffsetDateTime date = DateUtils.parseOffsetDateTime(SAMPLE_DATE_WITH_TIME_MILLIS);
+        OffsetDateTime date = DateUtils.parseOffsetDateTime(OffsetDateTime.of(
+                LocalDateTime.of(2025, 6, 15, 12, 0, 59),
+                DateUtils.getDefaultOffset()).toString());
+
+        assertNotNull(date);
+        assertEquals(2025, date.getYear());
+        assertEquals(6, date.getMonthValue());
+
+        date = DateUtils.parseOffsetDateTime(SAMPLE_DATE_WITH_TIME_MILLIS);
 
         assertNotNull(date);
         assertEquals(2020, date.getYear());
@@ -141,6 +149,7 @@ class DateUtilsTest {
         assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_DATE_WITH_TIME_MILLIS.replace(" ", "T")));
         assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_ISO_DATE_TIME));
         assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_ISO_DATE_TIME.replace("Z", "+0100")));
+        assertDoesNotThrow(() -> DateUtils.parseOffsetDateTime(SAMPLE_ISO_DATE_TIME.replace("Z", "-06:00")));
         assertNull(DateUtils.parseOffsetDateTime(null));
     }
 
@@ -159,7 +168,17 @@ class DateUtilsTest {
     @Test
     @DisplayName("Test string to local date time")
     void testParseLocalDateTime() {
-        LocalDateTime date = DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS);
+        LocalDateTime date = DateUtils.parseLocalDateTime(
+                LocalDateTime.of(2025, 6, 15, 12, 0, 59).toString());
+        assertNotNull(date);
+        assertEquals(2025, date.getYear());
+        assertEquals(6, date.getMonthValue());
+        assertEquals(15, date.getDayOfMonth());
+        assertEquals(12, date.getHour());
+        assertEquals(0, date.getMinute());
+        assertEquals(59, date.getSecond());
+
+        date = DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS);
 
         assertNotNull(date);
         assertEquals(2020, date.getYear());
@@ -173,6 +192,61 @@ class DateUtilsTest {
         assertDoesNotThrow(() -> DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME.substring(0, 16)));
         assertDoesNotThrow(() -> DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS.replace(" ", "T")));
         assertNull(DateUtils.parseLocalDateTime(null));
+    }
+
+    /**
+     * Test for {@link DateUtils#parseLocalDateTime(String)} method.
+     */
+    @Test
+    @DisplayName("Test string to local date time with offset")
+    void testParseLocalDateTimeWithOffset() {
+        LocalDateTime date = DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS
+                .replace(" ", "T") + "+0110");
+
+        assertNotNull(date);
+        assertEquals(2020, date.getYear());
+        assertEquals(5, date.getMonthValue());
+        assertEquals(1, date.getDayOfMonth());
+        assertEquals(14, date.getHour());
+        assertEquals(20, date.getMinute());
+        assertEquals(11, date.getSecond());
+        assertEquals(321_000_000, date.getNano());
+
+        date = DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS
+                .replace(" ", "T") + "-0120");
+
+        assertNotNull(date);
+        assertEquals(14, date.getHour());
+        assertEquals(20, date.getMinute());
+
+        LocalDateTime dateWithoutOffset = DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS);
+        date = DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS
+                .replace(" ", "T") + "Z");
+
+        ZoneOffset offset = DateUtils.getDefaultOffset();
+        assertNotNull(dateWithoutOffset);
+        dateWithoutOffset = dateWithoutOffset.plusSeconds(offset.getTotalSeconds());
+        assertNotNull(date);
+        assertEquals(date, dateWithoutOffset);
+    }
+
+    /**
+     * Test for {@link DateUtils#parseLocalDateTime(String, boolean)} method.
+     */
+    @Test
+    @DisplayName("Test string to local date time with offset self adjustment disabled")
+    void testParseLocalDateTimeWithOffsetAdjustDisabled() {
+        LocalDateTime date = DateUtils.parseLocalDateTime(SAMPLE_DATE_WITH_TIME_MILLIS
+                .replace(" ", "T") + "Z", false);
+
+        assertNotNull(date);
+        assertEquals(2020, date.getYear());
+        assertEquals(5, date.getMonthValue());
+        assertEquals(1, date.getDayOfMonth());
+        assertEquals(14, date.getHour());
+        assertEquals(20, date.getMinute());
+        assertEquals(11, date.getSecond());
+        assertEquals(321_000_000, date.getNano());
     }
 
     /**
