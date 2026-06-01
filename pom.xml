@@ -43,7 +43,7 @@
         <!-- Dependency versions -->
         <jackson.version>3.1.4</jackson.version>
         <owasp-encoder.version>1.4.0</owasp-encoder.version>
-        <junit.version>5.14.3</junit.version>
+        <junit.version>5.14.4</junit.version>
         <mockito.version>5.23.0</mockito.version>
 
         <!-- Plugin versions-->
