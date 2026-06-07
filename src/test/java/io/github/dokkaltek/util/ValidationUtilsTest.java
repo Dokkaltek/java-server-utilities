@@ -300,18 +300,19 @@ class ValidationUtilsTest {
     @DisplayName("Test that all items in a varags are null")
     void testValidateAllNull() {
         assertTrue(ValidationUtils.validateAllNull(null, null));
+        assertFalse(ValidationUtils.validateAllNull());
         assertFalse(ValidationUtils.validateAllNull(null, 1));
     }
 
     /**
-     * Test for {@link ValidationUtils#validateAllNull(Object[])} method.
+     * Test for {@link ValidationUtils#validateAllSuppliersAsNull(Supplier[])} method.
      */
     @Test
     @DisplayName("Test that all items in a varags are null")
     void testValidateAllNullWithSuppliers() {
-        assertTrue(ValidationUtils.validateAllNull(() -> null, () -> null));
-        assertFalse(ValidationUtils.validateAllNull());
-        assertFalse(ValidationUtils.validateAllNull(() -> null, () -> 1));
+        assertTrue(ValidationUtils.validateAllSuppliersAsNull(() -> null, () -> null));
+        assertFalse(ValidationUtils.validateAllSuppliersAsNull());
+        assertFalse(ValidationUtils.validateAllSuppliersAsNull(() -> null, () -> 1));
     }
 
     /**

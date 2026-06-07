@@ -355,12 +355,12 @@ public class ValidationUtils {
     }
 
     /**
-     * Validates that all passed suppliers are null.
+     * Validates that all passed suppliers are null. Renamed due to type ambiguity.
      * @param suppliers The suppliers to validate.
      * @return True if all passed objects are null.
      */
     @SafeVarargs
-    public static <T> boolean validateAllNull(Supplier<T> ...suppliers) {
+    public static <T> boolean validateAllSuppliersAsNull(Supplier<T> ...suppliers) {
         if (suppliers == null || suppliers.length == 0)
             return false;
         return Arrays.stream(suppliers).allMatch(supplier -> supplier != null && supplier.get() == null);
