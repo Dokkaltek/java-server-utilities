@@ -9,8 +9,11 @@ import io.github.dokkaltek.exception.InvalidUUIDException;
 import io.github.dokkaltek.exception.InvalidUriException;
 import io.github.dokkaltek.exception.InvalidUrlException;
 import io.github.dokkaltek.exception.JSONException;
+import io.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -267,5 +270,107 @@ class ValidationUtilsTest {
         assertThrows(InvalidIdException.class, () -> ValidationUtils.validateDNIWithEx("12345678y"));
         assertThrows(InvalidInputException.class, () -> ValidationUtils.validateDNIWithEx(null));
         assertThrows(InvalidInputException.class, () -> ValidationUtils.validateDNIWithEx(SpecialChars.EMPTY_STRING));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllNotNull(Object[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are not null")
+    void testValidateAllNotNull() {
+        assertTrue(ValidationUtils.validateAllNotNull(new SamplePojo(), 1, "test"));
+        assertFalse(ValidationUtils.validateAllNotNull(null, 1));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllNotNull(Supplier[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are not null")
+    void testValidateAllNotNullWithSuppliers() {
+        assertTrue(ValidationUtils.validateAllNotNull(SamplePojo::new));
+        assertFalse(ValidationUtils.validateAllNotNull());
+        assertFalse(ValidationUtils.validateAllNotNull(() -> null));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllNull(Object[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are null")
+    void testValidateAllNull() {
+        assertTrue(ValidationUtils.validateAllNull(null, null));
+        assertFalse(ValidationUtils.validateAllNull(null, 1));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllNull(Object[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are null")
+    void testValidateAllNullWithSuppliers() {
+        assertTrue(ValidationUtils.validateAllNull(() -> null, () -> null));
+        assertFalse(ValidationUtils.validateAllNull());
+        assertFalse(ValidationUtils.validateAllNull(() -> null, () -> 1));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllTrue(Supplier[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are true")
+    void testValidateAllTrueWithSuppliers() {
+        assertTrue(ValidationUtils.validateAllTrue(() -> true));
+        assertFalse(ValidationUtils.validateAllTrue(() -> null, () -> true));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllTrue(Boolean[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are true")
+    void testValidateAllTrue() {
+        assertTrue(ValidationUtils.validateAllTrue(true));
+        assertFalse(ValidationUtils.validateAllTrue(null, true));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllFalse(Supplier[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are false")
+    void testValidateAllFalseWithSuppliers() {
+        assertTrue(ValidationUtils.validateAllFalse(() -> false));
+        assertFalse(ValidationUtils.validateAllFalse(() -> null, () -> false));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllFalse(Boolean[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are false")
+    void testValidateAllFalse() {
+        assertTrue(ValidationUtils.validateAllFalse(false));
+        assertFalse(ValidationUtils.validateAllFalse(null, false));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllEqualTo(Object, Supplier[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are equal to a passed value")
+    void testValidateAllEqualToWithSuppliers() {
+        assertTrue(ValidationUtils.validateAllEqualTo(1, () -> 1));
+        assertFalse(ValidationUtils.validateAllEqualTo(1, () -> 1, () -> 2));
+    }
+
+    /**
+     * Test for {@link ValidationUtils#validateAllEqualTo(Object, Object[])} method.
+     */
+    @Test
+    @DisplayName("Test that all items in a varags are equal to a passed value")
+    void testValidateAllEqualTo() {
+        assertTrue(ValidationUtils.validateAllEqualTo(1, 1));
+        assertFalse(ValidationUtils.validateAllEqualTo(1, 1, 2));
     }
 }
