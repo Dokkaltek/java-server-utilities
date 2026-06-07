@@ -305,7 +305,7 @@ class ValidationUtilsTest {
     }
 
     /**
-     * Test for {@link ValidationUtils#validateAllNull(Object[])} method.
+     * Test for {@link ValidationUtils#validateAllSuppliersAsNull(Supplier[])} method.
      */
     @Test
     @DisplayName("Test that all items in a varags are null")
