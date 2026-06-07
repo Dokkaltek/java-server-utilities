@@ -44,7 +44,7 @@ You just need to add the dependency to your pom if you are using Jackson version
 <dependency>
     <groupId>io.github.dokkaltek</groupId>
     <artifactId>server-utilities</artifactId>
-    <version>1.1.10</version>
+    <version>1.1.11</version>
 </dependency>
 ```
 
@@ -54,6 +54,6 @@ If you are using the new Jackson version 3.x+:
 <dependency>
     <groupId>io.github.dokkaltek</groupId>
     <artifactId>server-utilities</artifactId>
-    <version>2.0.4</version>
+    <version>2.0.5</version>
 </dependency>
 ```

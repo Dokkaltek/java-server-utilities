@@ -16,8 +16,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static io.github.dokkaltek.util.StringUtils.isBlankOrNull;
@@ -313,5 +316,132 @@ public class ValidationUtils {
         // for the rest of the result.
         int remainder = Integer.parseInt(dni.substring(0, dni.length() - 1)) % 23;
         return VALID_DNI_LETTERS.charAt(remainder) == dni.charAt(dni.length() - 1);
+    }
+
+    /**
+     * Validates that all passed objects are not null.
+     * @param objects The objects to validate.
+     * @return True if all passed objects are not null.
+     */
+    @SafeVarargs
+    public static <T> boolean validateAllNotNull(T ...objects) {
+        if (objects == null || objects.length == 0)
+            return false;
+        return Arrays.stream(objects).allMatch(Objects::nonNull);
+    }
+
+    /**
+     * Validates that all passed suppliers are not null.
+     * @param suppliers The suppliers to validate.
+     * @return True if all passed objects are not null.
+     */
+    @SafeVarargs
+    public static <T> boolean validateAllNotNull(Supplier<T> ...suppliers) {
+        if (suppliers == null || suppliers.length == 0)
+            return false;
+        return Arrays.stream(suppliers).allMatch(supplier -> supplier != null && supplier.get() != null);
+    }
+
+    /**
+     * Validates that all passed objects are null.
+     * @param objects The objects to validate.
+     * @return True if all passed objects are null.
+     */
+    @SafeVarargs
+    public static <T> boolean validateAllNull(T ...objects) {
+        if (objects == null || objects.length == 0)
+            return false;
+        return Arrays.stream(objects).allMatch(Objects::isNull);
+    }
+
+    /**
+     * Validates that all passed suppliers are null.
+     * @param suppliers The suppliers to validate.
+     * @return True if all passed objects are null.
+     */
+    @SafeVarargs
+    public static <T> boolean validateAllNull(Supplier<T> ...suppliers) {
+        if (suppliers == null || suppliers.length == 0)
+            return false;
+        return Arrays.stream(suppliers).allMatch(supplier -> supplier != null && supplier.get() == null);
+    }
+
+    /**
+     * Validates that all passed suppliers are true.
+     * @param suppliers The suppliers to validate.
+     * @return True if all passed values are true.
+     */
+    @SafeVarargs
+    public static boolean validateAllTrue(Supplier<Boolean> ...suppliers) {
+        if (suppliers == null || suppliers.length == 0)
+            return false;
+        return Arrays.stream(suppliers).allMatch(supplier ->
+                supplier != null && Boolean.TRUE.equals(supplier.get()));
+    }
+
+    /**
+     * Validates that all passed booleans are true.
+     * @param booleans The booleans to validate.
+     * @return True if all passed values are true.
+     */
+    public static boolean validateAllTrue(Boolean ...booleans) {
+        if (booleans == null || booleans.length == 0)
+            return false;
+        return Arrays.stream(booleans).allMatch(Boolean.TRUE::equals);
+    }
+
+    /**
+     * Validates that all passed suppliers are false.
+     * @param suppliers The suppliers to validate.
+     * @return True if all passed values are false.
+     */
+    @SafeVarargs
+    public static boolean validateAllFalse(Supplier<Boolean> ...suppliers) {
+        if (suppliers == null || suppliers.length == 0)
+            return false;
+        return Arrays.stream(suppliers).allMatch(predicate ->
+                predicate != null && Boolean.FALSE.equals(predicate.get()));
+    }
+
+    /**
+     * Validates that all passed booleans are false.
+     * @param booleans The booleans to validate.
+     * @return True if all passed values are false.
+     */
+    public static boolean validateAllFalse(Boolean ...booleans) {
+        if (booleans == null || booleans.length == 0)
+            return false;
+        return Arrays.stream(booleans).allMatch(Boolean.FALSE::equals);
+    }
+
+    /**
+     * Validates that all passed predicates are equal to the passed value.
+     * @param equalValue The value to check all suppliers are equal to.
+     * @param predicates The predicates to validate.
+     * @return True if all passed values are true.
+     */
+    @SafeVarargs
+    public static <T> boolean validateAllEqualTo(T equalValue, Supplier<T> ...predicates) {
+        if (equalValue == null)
+            return validateAllNull(predicates);
+        if (predicates == null || predicates.length == 0)
+            return false;
+        return Arrays.stream(predicates).allMatch(predicate ->
+                predicate != null && equalValue.equals(predicate.get()));
+    }
+
+    /**
+     * Validates that all passed values are equal to the passed value.
+     * @param equalValue The value to check all suppliers are equal to.
+     * @param values The values to validate.
+     * @return True if all passed values are true.
+     */
+    @SafeVarargs
+    public static <T> boolean validateAllEqualTo(T equalValue, T ...values) {
+        if (equalValue == null)
+            return validateAllNull(values);
+        if (values == null || values.length == 0)
+            return false;
+        return Arrays.stream(values).allMatch(equalValue::equals);
     }
 }
