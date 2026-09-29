@@ -40,7 +40,7 @@ public final class GeneratorUtils {
 
             StringBuilder builder = new StringBuilder();
             for (int i = 0; i < loremRepeats; i++) {
-                if (builder.length() > 0 && '.' == builder.charAt(builder.length() - 1)) {
+                if (!builder.isEmpty() && '.' == builder.charAt(builder.length() - 1)) {
                     builder.append(" ");
                 }
                 builder.append(LOREM_IPSUM_TEXT);

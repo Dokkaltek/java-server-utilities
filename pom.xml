@@ -6,7 +6,7 @@
 
     <groupId>io.github.dokkaltek</groupId>
     <artifactId>server-utilities</artifactId>
-    <version>1.1.11</version>
+    <version>2.0.6</version>
     <packaging>jar</packaging>
 
     <name>Java server utilities</name>
@@ -36,22 +36,23 @@
     </scm>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Dependency versions -->
-        <jackson.version>2.21.4</jackson.version>
+        <jackson.version>3.2.3</jackson.version>
         <owasp-encoder.version>1.4.0</owasp-encoder.version>
-        <junit.version>5.14.4</junit.version>
-        <mockito.version>5.23.0</mockito.version>
+        <junit.version>6.1.3</junit.version>
+        <mockito.version>5.24.0</mockito.version>
 
         <!-- Plugin versions-->
-        <publishing-plugin.version>0.10.0</publishing-plugin.version>
+        <publishing-plugin.version>0.11.0</publishing-plugin.version>
         <source-plugin.version>3.4.0</source-plugin.version>
         <javadoc-plugin.version>3.12.0</javadoc-plugin.version>
         <gpg-plugin.version>3.2.8</gpg-plugin.version>
-        <jacoco-plugin.version>0.8.14</jacoco-plugin.version>
+        <jacoco-plugin.version>0.8.15</jacoco-plugin.version>
 
         <!-- Sonar exclusions -->
         <sonar.exclusions>**/constant/**, **/exception/**, **/helper/**</sonar.exclusions>
@@ -62,13 +63,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.42</version>
+            <version>1.18.48</version>
             <scope>provided</scope>
         </dependency>
 
         <!-- JSON -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
         </dependency>

@@ -1,22 +1,21 @@
 package io.github.dokkaltek.util;
 
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
 import io.github.dokkaltek.exception.InvalidInputException;
 import io.github.dokkaltek.exception.JSONException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.java.Log;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.util.TokenBuffer;
 
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -185,7 +184,7 @@ public final class JsonUtils {
         if (isBlankOrNull(json))
             return Collections.emptyMap();
         try {
-            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<>() {};
             return objectMapper.readValue(json, typeRef);
         } catch (JacksonException e) {
             throw new JSONException(e);
@@ -201,7 +200,7 @@ public final class JsonUtils {
         if (object == null)
             return Collections.emptyMap();
         try {
-            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<>() {};
             return objectMapper.convertValue(object, typeRef);
         } catch (IllegalArgumentException e) {
             throw new JSONException(e);
@@ -217,7 +216,7 @@ public final class JsonUtils {
         if (isBlankOrNull(json))
             return Collections.emptyList();
         try {
-            TypeReference<ArrayList<T>> typeRef = new TypeReference<ArrayList<T>>() {};
+            TypeReference<ArrayList<T>> typeRef = new TypeReference<>() {};
             return objectMapper.readValue(json, typeRef);
         } catch (JacksonException e) {
             throw new JSONException(e);
@@ -254,7 +253,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(byteArray, clazz);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -272,7 +271,7 @@ public final class JsonUtils {
             return defaultValue;
         try {
             return objectMapper.readValue(byteArray, clazz);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             log.info(String.format("Error converting json bytes to object, returning default value '%s' instead.",
                     defaultValue));
             return defaultValue;
@@ -290,9 +289,9 @@ public final class JsonUtils {
         if (byteArray == null || byteArray.length == 0)
             return Collections.emptyList();
         try {
-            TypeReference<ArrayList<T>> typeRef = new TypeReference<ArrayList<T>>() {};
+            TypeReference<ArrayList<T>> typeRef = new TypeReference<>() {};
             return objectMapper.readValue(byteArray, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -308,9 +307,9 @@ public final class JsonUtils {
         if (byteArray == null || byteArray.length == 0)
             return Collections.emptyMap();
         try {
-            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<>() {};
             return objectMapper.readValue(byteArray, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -328,7 +327,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(byteArray, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -346,7 +345,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(stream, clazz);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -365,7 +364,7 @@ public final class JsonUtils {
             return defaultValue;
         try {
             return objectMapper.readValue(stream, clazz);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             log.info(String.format("Error converting json input stream to object, " +
                             "returning default value '%s' instead.", defaultValue));
             return defaultValue;
@@ -383,9 +382,9 @@ public final class JsonUtils {
         if (stream == null)
             return Collections.emptyList();
         try {
-            TypeReference<ArrayList<T>> typeRef = new TypeReference<ArrayList<T>>() {};
+            TypeReference<ArrayList<T>> typeRef = new TypeReference<>() {};
             return objectMapper.readValue(stream, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -401,9 +400,9 @@ public final class JsonUtils {
         if (stream == null)
             return Collections.emptyMap();
         try {
-            TypeReference<HashMap<String, T>> typeRef = new TypeReference<HashMap<String, T>>() {};
+            TypeReference<HashMap<String, T>> typeRef = new TypeReference<>() {};
             return objectMapper.readValue(stream, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -420,7 +419,7 @@ public final class JsonUtils {
             return null;
         try {
             return objectMapper.readValue(stream, typeRef);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -468,7 +467,7 @@ public final class JsonUtils {
 
         try {
             return objectMapper.readTree(jsonBytes);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -492,7 +491,7 @@ public final class JsonUtils {
 
         try {
             return objectMapper.readTree(jsonStream);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -548,7 +547,7 @@ public final class JsonUtils {
             if (!tree.isArray())
                 return null;
             return (ArrayNode) tree;
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -576,7 +575,7 @@ public final class JsonUtils {
             if (!tree.isArray())
                 return null;
             return (ArrayNode) tree;
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }
@@ -611,7 +610,7 @@ public final class JsonUtils {
         if (field == null || field.isMissingNode()) {
             return null;
         }
-        return node.get(fieldName).asText();
+        return node.get(fieldName).asString();
     }
 
     /**
@@ -709,10 +708,10 @@ public final class JsonUtils {
         if (object == null)
             return null;
         try {
-            TokenBuffer tb = new TokenBuffer(new ObjectMapper(), false);
+            TokenBuffer tb = new TokenBuffer(ObjectWriteContext.empty(), false);
             objectMapper.writeValue(tb, object);
             return (T) objectMapper.readValue(tb.asParser(), object.getClass());
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JSONException(e);
         }
     }

@@ -7,7 +7,6 @@ import io.github.dokkaltek.helper.WrapperList;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -30,7 +29,6 @@ import static io.github.dokkaltek.constant.literal.SpecialChars.EQUAL_SIGN;
 import static io.github.dokkaltek.constant.literal.SpecialChars.HASH;
 import static io.github.dokkaltek.constant.literal.SpecialChars.QUESTION_MARK;
 import static io.github.dokkaltek.constant.literal.SpecialChars.SLASH;
-import static io.github.dokkaltek.util.StringUtils.isBlank;
 import static io.github.dokkaltek.util.StringUtils.isBlankOrNull;
 
 /**
@@ -192,7 +190,7 @@ public final class UriUtils {
             Map<String, WrapperList<String>> queryParams = new HashMap<>(params.length);
             for (String param : params) {
                 String[] keyAndValue = param.split(EQUAL_SIGN);
-                if (!isBlank(keyAndValue[0])) {
+                if (!keyAndValue[0].isBlank()) {
                     String key = keyAndValue[0];
                     WrapperList<String> values = new WrapperList<>(1);
                     if (keyAndValue.length > 1) {
@@ -296,11 +294,7 @@ public final class UriUtils {
             return EMPTY_STRING;
         }
 
-        try {
-            return URLEncoder.encode(stringToEncode, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
-            return stringToEncode;
-        }
+        return URLEncoder.encode(stringToEncode, StandardCharsets.UTF_8);
     }
 
     /**
@@ -313,11 +307,7 @@ public final class UriUtils {
             return EMPTY_STRING;
         }
 
-        try {
-            return URLDecoder.decode(stringToDecode, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
-            return stringToDecode;
-        }
+        return URLDecoder.decode(stringToDecode, StandardCharsets.UTF_8);
     }
 
     /**

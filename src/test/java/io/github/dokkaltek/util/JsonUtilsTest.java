@@ -1,15 +1,16 @@
 package io.github.dokkaltek.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.github.dokkaltek.exception.JSONException;
 import io.github.dokkaltek.samples.SamplePojo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -34,6 +35,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JsonUtils} class.
@@ -45,16 +49,17 @@ class JsonUtilsTest {
     private SamplePojo samplePojo;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         samplePojo = new SamplePojo();
         samplePojo.setName("John Doe");
         samplePojo.setAge(30);
     }
 
     @AfterEach
-    void tearDown() {
-        setObjectMapperInstance(ReflectionUtils.getStaticField(JsonUtils.class, "objectMapper"));
+    void cleanUp() {
+        setObjectMapperInstance(ReflectionUtils.invokeStaticMethod(JsonUtils.class, "initObjectMapper"));
     }
+
 
     /**
      * Test for {@link JsonUtils#setObjectMapperInstance(ObjectMapper)} method.
@@ -90,6 +95,10 @@ class JsonUtilsTest {
         assertNull(convertToJSONString(null));
         samplePojo.setDescription("test");
         assertEquals(SAMPLE_JSON_POJO.replace("null", "\"test\""), convertToJSONString(samplePojo));
+
+        ObjectMapper objectMapper = mock(ObjectMapper.class);
+        when(objectMapper.writeValueAsString(any(Object.class))).thenThrow(JacksonException.class);
+        setObjectMapperInstance(objectMapper);
         assertThrows(JSONException.class, () -> convertToJSONString(INVALID_OBJECT));
     }
 
@@ -140,6 +149,10 @@ class JsonUtilsTest {
         assertDoesNotThrow(() -> JsonUtils.convertObjectToBytes(samplePojo));
         assertTrue(JsonUtils.convertObjectToBytes(samplePojo).length > 0);
         assertEquals(0, JsonUtils.convertObjectToBytes(null).length);
+
+        ObjectMapper objectMapper = mock(ObjectMapper.class);
+        when(objectMapper.writeValueAsBytes(any(Object.class))).thenThrow(JacksonException.class);
+        setObjectMapperInstance(objectMapper);
         assertThrows(JSONException.class, () -> convertObjectToBytes(INVALID_OBJECT));
     }
 
@@ -169,6 +182,11 @@ class JsonUtilsTest {
         sampleMap.put("age", 30);
         assertEquals(sampleMap, JsonUtils.convertObjectToMap(samplePojo));
         assertTrue(JsonUtils.convertObjectToMap(null).isEmpty());
+
+        ObjectMapper objectMapper = mock(ObjectMapper.class);
+        when(objectMapper.convertValue(any(Object.class), any(TypeReference.class)))
+                .thenThrow(IllegalArgumentException.class);
+        setObjectMapperInstance(objectMapper);
         assertThrows(JSONException.class, () -> JsonUtils.convertObjectToMap(INVALID_OBJECT));
     }
 
@@ -195,7 +213,7 @@ class JsonUtilsTest {
         List<String> sampleList = new ArrayList<>();
         sampleList.add("test");
         sampleList.add("test2");
-        TypeReference<ArrayList<String>> typeRef = new TypeReference<ArrayList<String>>(){};
+        TypeReference<ArrayList<String>> typeRef = new TypeReference<>(){};
         String sampleInput = "[\"test\", \"test2\"]";
         assertEquals(sampleList, JsonUtils.convertJSONToParametrizedType(sampleInput, typeRef));
         assertNull(JsonUtils.convertJSONToParametrizedType(null, typeRef));
@@ -234,8 +252,7 @@ class JsonUtilsTest {
     @Test
     @DisplayName("Test parsing a byte array into a list")
     void testParseByteArrayToList() {
-        List<Integer> sampleList = new ArrayList<>();
-        sampleList.add(1);
+        List<Integer> sampleList = List.of(1);
         byte[] sampleBytes = JsonUtils.convertObjectToBytes(sampleList);
         List<Integer> result = JsonUtils.parseByteArrayToList(sampleBytes);
         assertEquals(sampleList, result);
@@ -249,8 +266,7 @@ class JsonUtilsTest {
     @Test
     @DisplayName("Test parsing a byte array into a map")
     void testParseByteArrayToMap() {
-        Map<String, Integer> sampleMap = new HashMap<>();
-        sampleMap.put("Test", 1);
+        Map<String, Integer> sampleMap = Map.of("Test", 1);
         byte[] sampleBytes = JsonUtils.convertObjectToBytes(sampleMap);
         Map<String, Integer> result = JsonUtils.parseByteArrayToMap(sampleBytes);
         assertEquals(sampleMap, result);
@@ -264,10 +280,9 @@ class JsonUtilsTest {
     @Test
     @DisplayName("Test parsing a byte array into a parametrized type")
     void testParseByteArrayToParametrizedType() {
-        List<Integer> sampleList = new ArrayList<>();
-        sampleList.add(1);
+        List<Integer> sampleList = List.of(1);
         byte[] sampleBytes = JsonUtils.convertObjectToBytes(sampleList);
-        TypeReference<List<Integer>> typeRef = new TypeReference<List<Integer>>() {};
+        TypeReference<List<Integer>> typeRef = new TypeReference<>() {};
         List<Integer> result = JsonUtils.parseByteArrayToParametrizedType(sampleBytes, typeRef);
         assertEquals(sampleList, result);
         assertNull(JsonUtils.parseByteArrayToParametrizedType(null, typeRef));
@@ -306,8 +321,7 @@ class JsonUtilsTest {
     @Test
     @DisplayName("Test parsing an input stream into a list")
     void testParseInputStreamToList() {
-        List<Integer> sampleList = new ArrayList<>();
-        sampleList.add(1);
+        List<Integer> sampleList = List.of(1);
         InputStream sampleStream = new ByteArrayInputStream(JsonUtils.convertObjectToBytes(sampleList));
         assertEquals(sampleList, JsonUtils.parseInputStreamToList(sampleStream));
         assertEquals(Collections.emptyList(), JsonUtils.parseInputStreamToList(null));
@@ -321,8 +335,7 @@ class JsonUtilsTest {
     @Test
     @DisplayName("Test parsing an input stream into a map")
     void testParseInputStreamToMap() {
-        Map<String, Integer> sampleMap = new HashMap<>();
-        sampleMap.put("Test", 1);
+        Map<String, Integer> sampleMap = Map.of("test", 1);
         InputStream sampleStream = new ByteArrayInputStream(JsonUtils.convertObjectToBytes(sampleMap));
         assertEquals(sampleMap, JsonUtils.parseInputStreamToMap(sampleStream));
         assertEquals(Collections.emptyMap(), JsonUtils.parseInputStreamToMap(null));
@@ -336,10 +349,9 @@ class JsonUtilsTest {
     @Test
     @DisplayName("Test parsing an input stream into a parametrized type")
     void testParseInputStreamToParametrizedType() {
-        List<Integer> sampleList = new ArrayList<>();
-        sampleList.add(1);
+        List<Integer> sampleList = List.of(1);
         InputStream sampleStream = new ByteArrayInputStream(JsonUtils.convertObjectToBytes(sampleList));
-        TypeReference<List<Integer>> typeRef = new TypeReference<List<Integer>>() {};
+        TypeReference<List<Integer>> typeRef = new TypeReference<>() {};
         assertEquals(sampleList, JsonUtils.parseInputStreamToParametrizedType(sampleStream, typeRef));
         assertNull(JsonUtils.parseInputStreamToParametrizedType(null, typeRef));
         InputStream emptyInputStream = new ByteArrayInputStream(new byte[0]);
@@ -355,7 +367,7 @@ class JsonUtilsTest {
     void testReadJSONFromString() {
         JsonNode result = Objects.requireNonNull(JsonUtils.readJSON(SAMPLE_JSON_POJO));
         assertEquals(samplePojo.getAge(), result.get("age").asInt());
-        assertEquals(samplePojo.getName(), result.get("name").asText());
+        assertEquals(samplePojo.getName(), result.get("name").asString());
         assertNull(JsonUtils.readJSON((String) null));
         assertThrows(JSONException.class, () -> JsonUtils.readJSON(INVALID_JSON));
     }
@@ -368,7 +380,7 @@ class JsonUtilsTest {
     void testReadJSONFromByteArray() {
         JsonNode result = Objects.requireNonNull(JsonUtils.readJSON(SAMPLE_JSON_POJO.getBytes(StandardCharsets.UTF_8)));
         assertEquals(samplePojo.getAge(), result.get("age").asInt());
-        assertEquals(samplePojo.getName(), result.get("name").asText());
+        assertEquals(samplePojo.getName(), result.get("name").asString());
         assertNull(JsonUtils.readJSON(new byte[0]));
         byte[] invalidBytes = INVALID_JSON.getBytes(StandardCharsets.UTF_8);
         assertThrows(JSONException.class, () -> JsonUtils.readJSON(invalidBytes));
@@ -383,7 +395,7 @@ class JsonUtilsTest {
         InputStream sampleStream = new ByteArrayInputStream(SAMPLE_JSON_POJO.getBytes(StandardCharsets.UTF_8));
         JsonNode result = Objects.requireNonNull(JsonUtils.readJSON(sampleStream));
         assertEquals(samplePojo.getAge(), result.get("age").asInt());
-        assertEquals(samplePojo.getName(), result.get("name").asText());
+        assertEquals(samplePojo.getName(), result.get("name").asString());
         assertNull(JsonUtils.readJSON((InputStream) null));
         InputStream invalidInputStream = new ByteArrayInputStream(INVALID_JSON.getBytes(StandardCharsets.UTF_8));
         assertThrows(JSONException.class, () -> JsonUtils.readJSON(invalidInputStream));
@@ -397,7 +409,7 @@ class JsonUtilsTest {
     void testReadJSONArrayFromString() {
         ArrayNode result = Objects.requireNonNull(JsonUtils.readJSONArray("[" + SAMPLE_JSON_POJO + "]"));
         assertEquals(samplePojo.getAge(), result.get(0).get("age").asInt());
-        assertEquals(samplePojo.getName(), result.get(0).get("name").asText());
+        assertEquals(samplePojo.getName(), result.get(0).get("name").asString());
         assertNull(JsonUtils.readJSONArray((String) null));
         assertThrows(JSONException.class, () -> JsonUtils.readJSONArray(INVALID_JSON));
     }
@@ -411,7 +423,7 @@ class JsonUtilsTest {
         String sampleArray = "[" + SAMPLE_JSON_POJO + "]";
         ArrayNode result = JsonUtils.readJSONArray(sampleArray.getBytes(StandardCharsets.UTF_8));
         assertEquals(samplePojo.getAge(), result.get(0).get("age").asInt());
-        assertEquals(samplePojo.getName(), result.get(0).get("name").asText());
+        assertEquals(samplePojo.getName(), result.get(0).get("name").asString());
         assertNull(JsonUtils.readJSONArray(new byte[0]));
         byte[] invalidBytes = INVALID_JSON.getBytes(StandardCharsets.UTF_8);
         assertThrows(JSONException.class, () -> JsonUtils.readJSONArray(invalidBytes));
@@ -427,7 +439,7 @@ class JsonUtilsTest {
         InputStream sampleStream = new ByteArrayInputStream(sampleArray.getBytes(StandardCharsets.UTF_8));
         ArrayNode result = JsonUtils.readJSONArray(sampleStream);
         assertEquals(samplePojo.getAge(), result.get(0).get("age").asInt());
-        assertEquals(samplePojo.getName(), result.get(0).get("name").asText());
+        assertEquals(samplePojo.getName(), result.get(0).get("name").asString());
         assertNull(JsonUtils.readJSONArray(new byte[0]));
         InputStream invalidStream = new ByteArrayInputStream(INVALID_JSON.getBytes(StandardCharsets.UTF_8));
         assertThrows(JSONException.class, () -> JsonUtils.readJSONArray(invalidStream));

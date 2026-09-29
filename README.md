@@ -1,7 +1,7 @@
 # Server utilities
 Server utilities library for java server applications. 
 
-The minimum supported version is **Java 8**. If you want to use **Jackson version 3.x**, the minimum supported version is **Java 17** instead.
+The minimum supported version is **Java 17**. For the **Java 8** compatible version see the [main](https://github.com/Dokkaltek/java-server-utilities/tree/main) branch.
 
 This library tries to be lightweight without having too many transitive dependencies.
 
@@ -39,16 +39,6 @@ This library tries to be lightweight without having too many transitive dependen
 
 ## Installation
 You just need to add the dependency to your pom if you are using Jackson version 2.x:
-
-``` xml
-<dependency>
-    <groupId>io.github.dokkaltek</groupId>
-    <artifactId>server-utilities</artifactId>
-    <version>1.1.11</version>
-</dependency>
-```
-
-If you are using the new Jackson version 3.x+:
 
 ``` xml
 <dependency>
